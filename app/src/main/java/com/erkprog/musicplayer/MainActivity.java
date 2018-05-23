@@ -28,12 +28,22 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
     }
 
     private void initRecyclerView(){
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        final RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mRecyclerViewAdapter = new RecyclerViewAdapter(this, new ArrayList<Song>());
-        recyclerView.setAdapter(mRecyclerViewAdapter);
+        mRecyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                mRecyclerViewAdapter.onItemClick(position);
+            }
 
+            @Override
+            public void onDownloadClick(int position) {
+                mRecyclerViewAdapter.onDownloadClick(position);
+            }
+        });
+        recyclerView.setAdapter(mRecyclerViewAdapter);
     }
 
     @Override

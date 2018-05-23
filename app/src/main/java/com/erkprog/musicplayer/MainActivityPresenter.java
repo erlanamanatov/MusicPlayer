@@ -7,7 +7,7 @@ import com.erkprog.musicplayer.repositories.impl.ServerSongsRepository;
 
 import java.util.List;
 
-public class MainActivityPresenter implements  SongsRepository.OnFinishedListener{
+public class MainActivityPresenter implements SongsRepository.OnFinishedListener {
     private static final String TAG = "MainActivityPresenter";
 
     private MainActivityView view;
@@ -18,25 +18,21 @@ public class MainActivityPresenter implements  SongsRepository.OnFinishedListene
         mSongsRepository = new ServerSongsRepository();
     }
 
-    void loadSongs(){
+    void loadSongs() {
         mSongsRepository.getDataFromServer(this);
     }
 
-
     @Override
     public void onFinished(List<Song> songList) {
-        Log.d(TAG, "onFinished: OK");
-        for(Song song: songList){
+        for (Song song : songList) {
             Log.d(TAG, "onFinished: " + song.toString());
         }
-
-        Log.d(TAG, "onFinished: songList size " + songList.size());
 
         view.displaySongs(songList);
     }
 
     @Override
     public void onFailure(Throwable t) {
-        Log.d(TAG, "onFailure: Failsd");
+        Log.d(TAG, "onFailure: " + t.getMessage());
     }
 }
