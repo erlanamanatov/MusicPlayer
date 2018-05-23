@@ -1,6 +1,8 @@
 package com.erkprog.musicplayer;
 
+import java.util.List;
+
 public interface MainActivityView {
 
-    void setTestText(String text);
+    void displaySongs(List<Song> songList);
 }

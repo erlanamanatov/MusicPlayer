@@ -25,11 +25,14 @@ public class MainActivityPresenter implements  SongsRepository.OnFinishedListene
 
     @Override
     public void onFinished(List<Song> songList) {
-        view.setTestText("Success");
         Log.d(TAG, "onFinished: OK");
         for(Song song: songList){
             Log.d(TAG, "onFinished: " + song.toString());
         }
+
+        Log.d(TAG, "onFinished: songList size " + songList.size());
+
+        view.displaySongs(songList);
     }
 
     @Override
