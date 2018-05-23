@@ -34,9 +34,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         mlistener = listener;
     }
 
-    public void onItemClick(int position){
-        String t = mSongList.get(position).getName();
-        Toast.makeText(mContext, t, Toast.LENGTH_SHORT).show();
+//    public void onItemClick(int position){
+//        String t = mSongList.get(position).getName();
+//        Toast.makeText(mContext, t, Toast.LENGTH_SHORT).show();
+//    }
+
+    public Song onItemClick(int position){
+        return mSongList.get(position);
     }
 
     public void onDownloadClick(int position){
