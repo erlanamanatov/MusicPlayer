@@ -113,8 +113,6 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                 mp.stop();
                 onCompletion(mp);
 //                textViewSongTime.get().setText("0.00/0.00"); // Displaying time completed playing
-                textSongCurrentTime.get().setText("0.00");
-                textSongTotalTime.get().setText("0.00");
                 break;
 
         }
@@ -199,8 +197,11 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
     @Override
     public void onCompletion(MediaPlayer mp) {
         Log.d(TAG, "onCompletion: triggered");
+        textSongCurrentTime.get().setText("0.00");
+        textSongTotalTime.get().setText("0.00");
         songProgressBar.get().setProgress(0);
         progressBarHandler.removeCallbacks(mUpdateTimeTask); /* Progress Update stop */
+        helper.getManager().cancel(NOTIFICATION_ID);
 //        btnPlay.get().setBackgroundResource(R.drawable.player);
     }
 
