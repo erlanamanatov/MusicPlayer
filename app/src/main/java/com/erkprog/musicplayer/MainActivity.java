@@ -3,6 +3,7 @@ package com.erkprog.musicplayer;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -32,28 +33,33 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         mPresenter = new MainActivityPresenter(this);
         mPresenter.loadSongs();
 
-
         btnPlay = findViewById(R.id.btnPlay);
 
         btnStop = findViewById(R.id.btnStop);
-
-        playerService = new Intent(MainActivity.this, PlayerInService.class);
-        Log.d(TAG, "onCreate: Starting service");
-        startService(playerService);
-
 
 
     }
 
     private void initRecyclerView() {
         final RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(layoutManager);
+
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(itemDecoration);
 
         mRecyclerViewAdapter = new RecyclerViewAdapter(this, new ArrayList<Song>());
         mRecyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                mRecyclerViewAdapter.onItemClick(position);
+                Song song = mRecyclerViewAdapter.onItemClick(position);
+                playerService = new Intent(MainActivity.this, PlayerInService.class);
+                playerService.putExtra("songUrl", song.getUrl());
+                playerService.putExtra("songName", song.getName());
+                playerService.putExtra("songArtists", song.getArtists());
+                Log.d(TAG, "onCreate: Starting service");
+                startService(playerService);
             }
 
             @Override
@@ -72,11 +78,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
     @Override
     protected void onDestroy() {
-        if (!PlayerInService.mp.isPlaying()) {
-            PlayerInService.mp.stop();
-            stopService(playerService);
-        } else {
+        if (PlayerInService.mp != null) {
+            if (!PlayerInService.mp.isPlaying()) {
+                PlayerInService.mp.stop();
+                stopService(playerService);
+            } else {
 //            btnPlay.setBackgroundResource(R.drawable.pause);
+            }
         }
         super.onDestroy();
     }
@@ -84,11 +92,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @Override
     protected void onResume() {
         try {
-            if (!PlayerInService.mp.isPlaying()) {
+            if (PlayerInService.mp != null) {
+                if (!PlayerInService.mp.isPlaying()) {
 //                btnPlay.setBackgroundResource(R.drawable.player);
 
-            } else {
+                } else {
 //                btnPlay.setBackgroundResource(R.drawable.pause);
+                }
             }
         } catch (Exception e) {
             Log.e("Exception", "" + e.getMessage() + e.getStackTrace() + e.getCause());

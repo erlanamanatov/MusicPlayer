@@ -1,6 +1,7 @@
 package com.erkprog.musicplayer;
 
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -18,11 +19,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.Random;
 
 public class PlayerInService extends Service implements OnClickListener, MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
     private static final String TAG = "PlayerInService";
     private WeakReference<Button> btnPlay;
     private WeakReference<Button> btnStop;
+    private NotificationHelper helper;
+    private String mDataSource, songName, songArtists;
     public static WeakReference textViewSongTime;
     public static WeakReference songProgressBar;
     static Handler progressBarHandler = new Handler();
@@ -36,6 +40,8 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         mp = new MediaPlayer();
         mp.reset();
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        helper = new NotificationHelper(this);
         super.onCreate();
     }
 
@@ -44,8 +50,14 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
     public int onStartCommand(Intent intent, int flags, int startId) {
         initUI();
         Log.d(TAG, "onStartCommand: Starts");
+        mDataSource = intent.getStringExtra("songUrl");
+        songName = intent.getStringExtra("songName");
+        songArtists = intent.getStringExtra("songArtists");
+
+        playSong();
+
         super.onStart(intent, startId);
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -138,15 +150,22 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
     }
 
     // Play song
-    public void playSong() {
-        Utility.initNotification("Playing (Amar shonar bangla)...", this);
+    public void playSong()
+    {
+        //Utility.initNotification("Playing (Amar shonar bangla)...", this);
+        Notification.Builder builder = helper.getChannelNotification(songName, songArtists);
+        helper.getManager().notify(new Random().nextInt(), builder.build());
+        Log.d(TAG, "playSong: should play song");
+
         try {
             mp.reset();
 //            Uri myUri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.bangla);
-            mp.setDataSource("http://hck.re/2nCncK");
+//            mp.setDataSource("http://hck.re/ZeSJFd");
+            mp.setDataSource(mDataSource);
             mp.prepareAsync();
             mp.setOnPreparedListener(new OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
+                    Log.d(TAG, "onPrepared: ready");
                     try {
                         mp.start();
                         updateProgressBar();

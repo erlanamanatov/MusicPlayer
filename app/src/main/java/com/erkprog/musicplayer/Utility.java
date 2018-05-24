@@ -5,6 +5,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 /**
  * Created by masum on 09/12/2015.
@@ -20,35 +23,40 @@ public class Utility {
 //    @SuppressWarnings("deprecation")
     public static void initNotification(String songTitle, Context mContext) {
         try {
-            String ns = Context.NOTIFICATION_SERVICE;
-            mNotificationManager = (NotificationManager) mContext.getSystemService(ns);
-            int icon = R.drawable.place_holder;
-            CharSequence tickerText = "Playing your song";
-            long when = System.currentTimeMillis();
-
-//            Notification notification = new Notification(icon, tickerText, when);
-//            notification.flags = Notification.FLAG_ONGOING_EVENT;
             Context context = mContext.getApplicationContext();
-//            CharSequence songName = "" + songTitle;
-//
             Intent notificationIntent = new Intent(mContext, MainActivity.class);
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), notificationIntent, 0);
+
 //            notification.setLatestEventInfo(context, songName, null, contentIntent);
 //            mNotificationManager.notify(NOTIFICATION_ID, notification);
 
-            Notification.Builder builder = new Notification.Builder(mContext);
-            builder.setTicker("ticker text")
-                    .setContentTitle("My notification")
+//            Notification.Builder builder = new Notification.Builder(context);
+//            builder.setTicker("ticker text")
+//                    .setContentTitle("My notification")
+//                    .setContentText("content text")
+//                    .setSmallIcon(R.drawable.place_holder)
+//                    .setContentIntent(contentIntent)
+//                    .setOngoing(true)
+//                    .setSubText("this is subtext")
+//                    .setNumber(100);
+//
+//            Notification notification = builder.build();
+//            mNotificationManager.notify(NOTIFICATION_ID, notification);
+
+            Notification n = new Notification.Builder(mContext.getApplicationContext())
+                    .setContentTitle("Title text")
                     .setContentText("content text")
                     .setSmallIcon(R.drawable.place_holder)
                     .setContentIntent(contentIntent)
-                    .setOngoing(true)
-                    .setSubText("this is subtext")
-                    .setNumber(100)
+                    .setAutoCancel(true)
                     .build();
 
-            Notification notification = builder.getNotification();
-            mNotificationManager.notify(NOTIFICATION_ID, notification);
+            NotificationManager notificationManager =
+                    (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
+
+            notificationManager.notify(0, n);
+
+
 
 
         } catch (Exception e) {
