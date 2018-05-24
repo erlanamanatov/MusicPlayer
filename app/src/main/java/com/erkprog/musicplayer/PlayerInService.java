@@ -23,12 +23,14 @@ import java.util.Random;
 
 public class PlayerInService extends Service implements OnClickListener, MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
     private static final String TAG = "PlayerInService";
+    private static final int NOTIFICATION_ID = 82;
     private WeakReference<Button> btnPlay;
     private WeakReference<Button> btnStop;
+    public static WeakReference<TextView> textSongCurrentTime;
+    public static WeakReference<TextView> textSongTotalTime;
+    public static WeakReference<SeekBar> songProgressBar;
     private NotificationHelper helper;
     private String mDataSource, songName, songArtists;
-    public static WeakReference textViewSongTime;
-    public static WeakReference songProgressBar;
     static Handler progressBarHandler = new Handler();
 
     public static MediaPlayer mp;
@@ -45,18 +47,19 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         super.onCreate();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         initUI();
         Log.d(TAG, "onStartCommand: Starts");
-        mDataSource = intent.getStringExtra("songUrl");
-        songName = intent.getStringExtra("songName");
-        songArtists = intent.getStringExtra("songArtists");
+        boolean startOnResume = intent.getBooleanExtra("onResume", false);
+        Log.d(TAG, "onStartCommand: " + startOnResume);
+        if (!startOnResume) {
+            mDataSource = intent.getStringExtra("songUrl");
+            songName = intent.getStringExtra("songName");
+            songArtists = intent.getStringExtra("songArtists");
+            playSong();
+        }
 
-        playSong();
-
-        super.onStart(intent, startId);
         return START_NOT_STICKY;
     }
 
@@ -68,14 +71,13 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
     private void initUI() {
         btnPlay = new WeakReference<>(MainActivity.btnPlay);
         btnStop = new WeakReference<>(MainActivity.btnStop);
-
-//        textViewSongTime = new WeakReference<>(MainActivity.textViewSongTime);
-//        songProgressBar = new WeakReference<>(MainActivity.seekBar);
-//        songProgressBar.get().setOnSeekBarChangeListener(this);
+        textSongCurrentTime = new WeakReference<>(MainActivity.songCurrentTime);
+        textSongTotalTime = new WeakReference<>(MainActivity.songTotalTime);
+        songProgressBar = new WeakReference<>(MainActivity.seekBar);
+        songProgressBar.get().setOnSeekBarChangeListener(this);
         btnPlay.get().setOnClickListener(this);
         btnStop.get().setOnClickListener(this);
         mp.setOnCompletionListener(this);
-
     }
 
     public void onClick(View v) {
@@ -111,21 +113,23 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                 mp.stop();
                 onCompletion(mp);
 //                textViewSongTime.get().setText("0.00/0.00"); // Displaying time completed playing
+                textSongCurrentTime.get().setText("0.00");
+                textSongTotalTime.get().setText("0.00");
                 break;
 
         }
     }
 
-    public void updateProgressBar(){
-        try{
+    public void updateProgressBar() {
+        try {
             progressBarHandler.postDelayed(mUpdateTimeTask, 100);
-        }catch(Exception e){
+        } catch (Exception e) {
 
         }
     }
 
     static Runnable mUpdateTimeTask = new Runnable() {
-        public void run(){
+        public void run() {
             long totalDuration = 0;
             long currentDuration = 0;
 
@@ -133,11 +137,13 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                 totalDuration = mp.getDuration();
                 currentDuration = mp.getCurrentPosition();
 //                textViewSongTime.get().setText(Utility.milliSecondsToTimer(currentDuration) + "/" + Utility.milliSecondsToTimer(totalDuration)); // Displaying time completed playing
-                int progress = (int)(Utility.getProgressPercentage(currentDuration, totalDuration));
-//                songProgressBar.get().setProgress(progress);	/* Running this thread after 100 milliseconds */
+                textSongCurrentTime.get().setText(Utility.milliSecondsToTimer(currentDuration));
+                textSongTotalTime.get().setText(Utility.milliSecondsToTimer(totalDuration));
+                int progress = (int) (Utility.getProgressPercentage(currentDuration, totalDuration));
+                songProgressBar.get().setProgress(progress);    /* Running this thread after 100 milliseconds */
                 progressBarHandler.postDelayed(this, 100);
 
-            } catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -146,16 +152,20 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
 
     @Override
     public void onDestroy() {
+        if (mp != null) mp.release();
+        helper.getManager().cancel(NOTIFICATION_ID);
+        Log.d(TAG, "onDestroy: Service on destroy");
 
     }
 
     // Play song
-    public void playSong()
-    {
-        //Utility.initNotification("Playing (Amar shonar bangla)...", this);
-        Notification.Builder builder = helper.getChannelNotification(songName, songArtists);
-        helper.getManager().notify(new Random().nextInt(), builder.build());
-        Log.d(TAG, "playSong: should play song");
+    public void playSong() {
+        Log.d(TAG, "playSong: starts");
+        progressBarHandler.removeCallbacks(mUpdateTimeTask);
+        songProgressBar.get().setProgress(0);
+        textSongCurrentTime.get().setText("0:00");
+        textSongTotalTime.get().setText("0:00");
+        showOnPlayNotification();
 
         try {
             mp.reset();
@@ -181,9 +191,15 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         }
     }
 
+    private void showOnPlayNotification() {
+        Notification.Builder builder = helper.getChannelNotification(songName, songArtists);
+        helper.getManager().notify(NOTIFICATION_ID, builder.build());
+    }
+
     @Override
-    public void onCompletion(MediaPlayer mp){
-//        songProgressBar.get().setProgress(0);
+    public void onCompletion(MediaPlayer mp) {
+        Log.d(TAG, "onCompletion: triggered");
+        songProgressBar.get().setProgress(0);
         progressBarHandler.removeCallbacks(mUpdateTimeTask); /* Progress Update stop */
 //        btnPlay.get().setBackgroundResource(R.drawable.player);
     }
@@ -202,7 +218,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
     public void onStopTrackingTouch(SeekBar seekBar) {
         progressBarHandler.removeCallbacks(mUpdateTimeTask);
         int totalDuration = mp.getDuration();
-        int currentPosition = Utility.progressToTimer(seekBar.getProgress(),totalDuration);
+        int currentPosition = Utility.progressToTimer(seekBar.getProgress(), totalDuration);
         mp.seekTo(currentPosition);
         updateProgressBar();
     }

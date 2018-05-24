@@ -12,21 +12,21 @@ import android.os.Build;
 public class NotificationHelper extends ContextWrapper {
     private final static String CHANNEL_ID = "com.test.MusicPlayer";
     private final static String CHANNEL_NAME = "myMusic channel";
-    private  NotificationManager manager;
+    private NotificationManager manager;
 
     public NotificationHelper(Context base) {
         super(base);
         createChannel();
     }
 
-    private void createChannel(){
+    private void createChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new  NotificationChannel (CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
             channel.enableLights(false);
+            channel.setSound(null, null);
             channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
             getManager().createNotificationChannel(channel);
         }
-
     }
 
 
@@ -36,7 +36,7 @@ public class NotificationHelper extends ContextWrapper {
         return manager;
     }
 
-    public Notification.Builder getChannelNotification(String title, String body){
+    public Notification.Builder getChannelNotification(String title, String body) {
 //        Context context = mContext.getApplicationContext();
         Context context = getApplicationContext();
         Intent notificationIntent = new Intent(context, MainActivity.class);
@@ -49,7 +49,7 @@ public class NotificationHelper extends ContextWrapper {
                     .setSmallIcon(R.drawable.place_holder)
                     .setContentIntent(contentIntent)
                     .setOngoing(true)
-                    .setAutoCancel(true);
+                    .setAutoCancel(false);
         } else {
             return null;
         }

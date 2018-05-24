@@ -28,6 +28,7 @@ public class ServerSongsRepository implements SongsRepository {
             @Override
             public void onResponse(Call<List<Song>> call, Response<List<Song>> response) {
                 onFinishedListener.onFinished(response.body());
+
             }
 
             @Override

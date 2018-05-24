@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     private RecyclerViewAdapter mRecyclerViewAdapter;
 
     public static Button btnPlay, btnStop;
+    public static SeekBar seekBar;
+    public static TextView songCurrentTime, songTotalTime;
     private Intent playerService;
 
     @Override
@@ -34,9 +37,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         mPresenter.loadSongs();
 
         btnPlay = findViewById(R.id.btnPlay);
-
         btnStop = findViewById(R.id.btnStop);
-
+        seekBar = findViewById(R.id.seekBar);
+        songCurrentTime = findViewById(R.id.songCurrentTime);
+        songTotalTime = findViewById(R.id.songTotalTime);
+        songCurrentTime.setText("0:00");
+        songTotalTime.setText("0:00");
 
     }
 
@@ -92,6 +98,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @Override
     protected void onResume() {
         try {
+            playerService = new Intent(MainActivity.this, PlayerInService.class);
+            playerService.putExtra("onResume", true);
+            startService(playerService);
             if (PlayerInService.mp != null) {
                 if (!PlayerInService.mp.isPlaying()) {
 //                btnPlay.setBackgroundResource(R.drawable.player);
