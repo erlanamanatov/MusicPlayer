@@ -3,7 +3,6 @@ package com.erkprog.musicplayer;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -14,7 +13,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -66,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         songTotalTime.setText("0:00");
 
 
-            new DownloadFileFromURL().execute("http://hck.re/ZeSJFd");
+//            new DownloadFileFromURL().execute("http://hck.re/ZeSJFd");
 
 
     }
@@ -85,22 +83,37 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         mRecyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                Song song = mRecyclerViewAdapter.onItemClick(position);
-                playerService = new Intent(MainActivity.this, PlayerInService.class);
-                playerService.putExtra("songUrl", song.getUrl());
-                playerService.putExtra("songName", song.getName());
-                playerService.putExtra("songArtists", song.getArtists());
-                Log.d(TAG, "onCreate: Starting service");
-                startService(playerService);
+                playSong(position);
             }
 
             @Override
             public void onDownloadClick(int position) {
 //                mRecyclerViewAdapter.onDownloadClick(position);
+                mPresenter.downloadSong(mRecyclerViewAdapter.getSong(position));
 
             }
         });
         recyclerView.setAdapter(mRecyclerViewAdapter);
+    }
+
+    private void playSong(int position) {
+        Song song = mRecyclerViewAdapter.getSong(position);
+        playerService = new Intent(MainActivity.this, PlayerInService.class);
+        playerService.putExtra("songUrl", song.getUrl());
+        playerService.putExtra("songName", song.getName());
+        playerService.putExtra("songArtists", song.getArtists());
+        Log.d(TAG, "onCreate: Starting service");
+        startService(playerService);
+    }
+
+    @Override
+    public void updateProgress(int progress) {
+        seekBar.setProgress(progress);
+    }
+
+    @Override
+    public void onFileDownloaded() {
+        Toast.makeText(this, "File downloaded", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -307,9 +320,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
             return expandedURL;
         }
-
-
-
     }
 
 

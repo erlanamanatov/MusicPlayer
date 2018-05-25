@@ -27,10 +27,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     public interface OnItemClickListener {
         void onItemClick(int position);
+
         void onDownloadClick(int position);
     }
 
-    public void setOnItemClickListener(OnItemClickListener listener){
+    public void setOnItemClickListener(OnItemClickListener listener) {
         mlistener = listener;
     }
 
@@ -39,11 +40,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 //        Toast.makeText(mContext, t, Toast.LENGTH_SHORT).show();
 //    }
 
-    public Song onItemClick(int position){
+//    public Song onItemClick(int position){
+//        return mSongList.get(position);
+//    }
+
+    public Song getSong(int position) {
         return mSongList.get(position);
     }
 
-    public void onDownloadClick(int position){
+    public void onDownloadClick(int position) {
         Toast.makeText(mContext, "On Download clicked", Toast.LENGTH_SHORT).show();
     }
 
@@ -73,12 +78,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return (mSongList != null ? mSongList.size() : 0);
     }
 
-    void loadNewData(List<Song> songList){
+    void loadNewData(List<Song> songList) {
         mSongList = songList;
         notifyDataSetChanged();
     }
 
-    static  class SongViewHolder extends RecyclerView.ViewHolder {
+    static class SongViewHolder extends RecyclerView.ViewHolder {
         ImageView coverImage, downloadImg;
         TextView name, artists;
 
@@ -93,9 +98,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (listener != null){
+                    if (listener != null) {
                         int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION){
+                        if (position != RecyclerView.NO_POSITION) {
                             listener.onItemClick(position);
                         }
                     }
@@ -105,9 +110,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             downloadImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (listener != null){
+                    if (listener != null) {
                         int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION){
+                        if (position != RecyclerView.NO_POSITION) {
                             listener.onDownloadClick(position);
                         }
                     }

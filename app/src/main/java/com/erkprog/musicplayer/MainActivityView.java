@@ -5,4 +5,8 @@ import java.util.List;
 public interface MainActivityView {
 
     void displaySongs(List<Song> songList);
+
+    void updateProgress(int progress);
+
+    void onFileDownloaded();
 }
