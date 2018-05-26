@@ -57,14 +57,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.name.setText(song.getName());
         holder.artists.setText(song.getArtists());
 
-        holder.progressBar.setProgress(songItem.getProgress());
 
         if (songItem.isLocallyAvailable()){
             holder.downloadImg.setImageResource(R.drawable.saved);
             holder.downloadImg.setEnabled(false);
+            holder.progressBar.setProgress(0);
         } else {
             holder.downloadImg.setImageResource(R.drawable.song_download);
             holder.downloadImg.setEnabled(true);
+            holder.progressBar.setProgress(songItem.getProgress());
         }
 
     }

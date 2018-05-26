@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -25,10 +26,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     private MainActivityPresenter mPresenter;
     private RecyclerViewAdapter mRecyclerViewAdapter;
 
-    public static Button btnPlay, btnStop;
+    public static ImageButton btnPlay, btnStop;
     public static SeekBar seekBar;
-    public static TextView songCurrentTime, songTotalTime;
-    private ProgressBar mProgressBar;
+    public static TextView songCurrentTime, songTotalTime, playerSongName, playerSongArtists;
     private Intent playerService;
 
     @Override
@@ -42,13 +42,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         mPresenter.loadSongs();
 
         btnPlay = findViewById(R.id.btnPlay);
+//        btnPlay.setBackgroundResource(R.drawable.play_img);
+//        btnPlay.setImageResource(R.drawable.play_img);
         btnStop = findViewById(R.id.btnStop);
         seekBar = findViewById(R.id.seekBar);
         songCurrentTime = findViewById(R.id.songCurrentTime);
         songTotalTime = findViewById(R.id.songTotalTime);
+        playerSongName = findViewById(R.id.player_song_name);
+        playerSongArtists = findViewById(R.id.player_song_artists);
         songCurrentTime.setText("0:00");
         songTotalTime.setText("0:00");
-        mProgressBar = findViewById(R.id.progressBar);
+        playerSongName.setText("");
+        playerSongArtists.setText("");
+
     }
 
     private void initRecyclerView() {
@@ -78,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
     private void playSong(int position) {
         Song song = mRecyclerViewAdapter.getSongItem(position).getSong();
+        playerSongName.setText(song.getName());
+        playerSongArtists.setText(song.getArtists());
         playerService = new Intent(MainActivity.this, PlayerInService.class);
         playerService.putExtra("songUrl", song.getUrl());
         playerService.putExtra("songName", song.getName());
@@ -109,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
                 PlayerInService.mp.stop();
                 stopService(playerService);
             } else {
-//            btnPlay.setBackgroundResource(R.drawable.pause);
+            btnPlay.setBackgroundResource(R.drawable.pause_img);
             }
         }
         super.onDestroy();
@@ -123,10 +131,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
             startService(playerService);
             if (PlayerInService.mp != null) {
                 if (!PlayerInService.mp.isPlaying()) {
-//                btnPlay.setBackgroundResource(R.drawable.player);
+                btnPlay.setBackgroundResource(R.drawable.play_img);
 
                 } else {
-//                btnPlay.setBackgroundResource(R.drawable.pause);
+                btnPlay.setBackgroundResource(R.drawable.pause_img);
                 }
             }
         } catch (Exception e) {

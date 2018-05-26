@@ -23,6 +23,7 @@ public class NotificationHelper extends ContextWrapper {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
             channel.enableLights(false);
+            channel.enableVibration(false);
             channel.setSound(null,  null);
             channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
             getManager().createNotificationChannel(channel);

@@ -30,61 +30,101 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <RelativeLayout
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#b51248">
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="0dp" />
-
             <SeekBar
                 android:id="@+id/seekBar"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true" />
-
-            <Button
-                android:id="@+id/btnStop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/btnPlay"
-                android:text="Stop" />
-
-            <Button
-                android:id="@+id/btnPlay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="Play" />
+                android:layout_above="@+id/btnStop"
+                android:layout_centerHorizontal="true"
+                android:layout_marginEnd="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/songTotalTime"
+                app:layout_constraintStart_toEndOf="@+id/songCurrentTime"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/songCurrentTime"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="15dp"
-                android:text="currentTime"
-                android:textAlignment="textStart" />
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:text="0:00"
+                android:textAlignment="textStart"
+                android:textColor="@android:color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/songTotalTime"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:text="totalTime"
-                android:textAlignment="textEnd" />
-        </RelativeLayout>
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:text="0:00"
+                android:textAlignment="textEnd"
+                android:textColor="@android:color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/player_song_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:maxLines="1"
+                android:text="Song Name"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/player_song_artists"
+                app:layout_constraintEnd_toStartOf="@+id/btnPlay"
+                app:layout_constraintStart_toStartOf="@+id/songCurrentTime" />
+
+            <TextView
+                android:id="@+id/player_song_artists"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="8dp"
+                android:maxLines="1"
+                android:text="Song Artists"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/player_song_name"
+                app:layout_constraintStart_toStartOf="@+id/player_song_name" />
+
+            <ImageButton
+                android:id="@+id/btnStop"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginBottom="21dp"
+                android:layout_marginEnd="24dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@drawable/stop_img" />
+
+            <ImageButton
+                android:id="@+id/btnPlay"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/play_img"
+                android:scaleType="centerInside"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnStop" />
+
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>
 </android.support.constraint.ConstraintLayout>

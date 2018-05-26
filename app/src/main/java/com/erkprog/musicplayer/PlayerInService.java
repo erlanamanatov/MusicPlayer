@@ -24,13 +24,16 @@ import java.util.Random;
 public class PlayerInService extends Service implements OnClickListener, MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
     private static final String TAG = "PlayerInService";
     private static final int NOTIFICATION_ID = 82;
-    private WeakReference<Button> btnPlay;
-    private WeakReference<Button> btnStop;
+    private WeakReference<ImageButton> btnPlay;
+    private WeakReference<ImageButton> btnStop;
     public static WeakReference<TextView> textSongCurrentTime;
     public static WeakReference<TextView> textSongTotalTime;
+    public static WeakReference<TextView> playerSongName;
+    public static WeakReference<TextView> playerSongArtists;
     public static WeakReference<SeekBar> songProgressBar;
     private NotificationHelper helper;
-    private String mDataSource, songName, songArtists;
+    private String mDataSource;
+    private static String songName, songArtists;
     static Handler progressBarHandler = new Handler();
 
     public static MediaPlayer mp;
@@ -57,6 +60,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
             mDataSource = intent.getStringExtra("songUrl");
             songName = intent.getStringExtra("songName");
             songArtists = intent.getStringExtra("songArtists");
+            Log.d(TAG, "onStartCommand: " + songName + songArtists);
             playSong();
         }
 
@@ -73,6 +77,8 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         btnStop = new WeakReference<>(MainActivity.btnStop);
         textSongCurrentTime = new WeakReference<>(MainActivity.songCurrentTime);
         textSongTotalTime = new WeakReference<>(MainActivity.songTotalTime);
+        playerSongName = new WeakReference<>(MainActivity.playerSongName);
+        playerSongArtists = new WeakReference<>(MainActivity.playerSongArtists);
         songProgressBar = new WeakReference<>(MainActivity.seekBar);
         songProgressBar.get().setOnSeekBarChangeListener(this);
         btnPlay.get().setOnClickListener(this);
@@ -90,7 +96,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                     mp.pause();
                     isPause = true;
                     progressBarHandler.removeCallbacks(mUpdateTimeTask);
-//                    btnPlay.get().setBackgroundResource(R.drawable.player);
+                    btnPlay.get().setBackgroundResource(R.drawable.play_img);
                     return;
                 }
 
@@ -99,7 +105,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                     mp.start();
                     isPause = false;
                     updateProgressBar();
-//                    btnPlay.get().setBackgroundResource(R.drawable.pause);
+                    btnPlay.get().setBackgroundResource(R.drawable.pause_img);
                     return;
                 }
 
@@ -137,6 +143,8 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
 //                textViewSongTime.get().setText(Utility.milliSecondsToTimer(currentDuration) + "/" + Utility.milliSecondsToTimer(totalDuration)); // Displaying time completed playing
                 textSongCurrentTime.get().setText(Utility.milliSecondsToTimer(currentDuration));
                 textSongTotalTime.get().setText(Utility.milliSecondsToTimer(totalDuration));
+                playerSongName.get().setText(songName != null ? songName : "");
+                playerSongArtists.get().setText(songArtists != null ? songArtists : "");
                 int progress = (int) (Utility.getProgressPercentage(currentDuration, totalDuration));
                 songProgressBar.get().setProgress(progress);    /* Running this thread after 100 milliseconds */
                 progressBarHandler.postDelayed(this, 100);
@@ -155,6 +163,8 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         Log.d(TAG, "onDestroy: Service on destroy");
 
     }
+
+
 
     // Play song
     public void playSong() {
@@ -177,7 +187,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                     try {
                         mp.start();
                         updateProgressBar();
-//                        btnPlay.get().setBackgroundResource(R.drawable.pause);
+                        btnPlay.get().setBackgroundResource(R.drawable.pause_img);
                     } catch (Exception e) {
                         Log.i("EXCEPTION", "" + e.getMessage());
                     }
@@ -202,7 +212,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         songProgressBar.get().setProgress(0);
         progressBarHandler.removeCallbacks(mUpdateTimeTask); /* Progress Update stop */
         helper.getManager().cancel(NOTIFICATION_ID);
-//        btnPlay.get().setBackgroundResource(R.drawable.player);
+        btnPlay.get().setBackgroundResource(R.drawable.play_img);
     }
 
     @Override
