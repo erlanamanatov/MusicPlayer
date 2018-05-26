@@ -35,6 +35,15 @@
             android:layout_height="match_parent"
             android:background="#b51248">
 
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="0dp" />
+
             <SeekBar
                 android:id="@+id/seekBar"
                 android:layout_width="match_parent"

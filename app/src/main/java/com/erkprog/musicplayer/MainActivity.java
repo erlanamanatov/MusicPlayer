@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     public static Button btnPlay, btnStop;
     public static SeekBar seekBar;
     public static TextView songCurrentTime, songTotalTime;
+    private ProgressBar mProgressBar;
     private Intent playerService;
 
     @Override
@@ -52,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
         mPresenter = new MainActivityPresenter(this);
         mPresenter.loadSongs();
-        Toast.makeText(this, "" +isWriteStoragePermissionGranted(), Toast.LENGTH_SHORT).show();
-        testWrite();
 
         btnPlay = findViewById(R.id.btnPlay);
         btnStop = findViewById(R.id.btnStop);
@@ -62,11 +62,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         songTotalTime = findViewById(R.id.songTotalTime);
         songCurrentTime.setText("0:00");
         songTotalTime.setText("0:00");
-
-
-//            new DownloadFileFromURL().execute("http://hck.re/ZeSJFd");
-
-
+        mProgressBar = findViewById(R.id.progressBar);
     }
 
     private void initRecyclerView() {
@@ -78,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(itemDecoration);
+
 
         mRecyclerViewAdapter = new RecyclerViewAdapter(this, new ArrayList<Song>());
         mRecyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
@@ -108,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
     @Override
     public void updateProgress(int progress) {
-        seekBar.setProgress(progress);
+//        seekBar.setProgress(progress);
+        mProgressBar.setProgress(progress);
     }
 
     @Override
@@ -150,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
                 }
             }
         } catch (Exception e) {
-            Log.e("Exception", "" + e.getMessage() + e.getStackTrace() + e.getCause());
+            Log.e("Exception", "" + e.getMessage() + e.getCause());
         }
 
         super.onResume();
@@ -185,142 +183,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
                 if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
                     Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
                     Log.d(TAG, "onRequestPermissionsResult: Granted");
-                    //resume tasks needing this permission
-                    //downloadPdfFile();
                 }else{
-//                    progress.dismiss();
                     Log.d(TAG, "onRequestPermissionsResult: No permission");
                 }
                 break;
-
-
         }
     }
-
-    private void testWrite(){
-        try {
-            String root = Environment.getExternalStorageDirectory().toString();
-//            File myDir = new File(root + "/saved_images");
-//            myDir.mkdirs();
-//
-//            String fname = "Image-"+ n +".jpg";
-//            File file = new File (myDir, fname);
-
-            File myFile = new File(root + "/tess.txt");
-            myFile.createNewFile();
-            FileOutputStream fOut = new FileOutputStream(myFile);
-            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-            myOutWriter.append("Some text");
-            myOutWriter.close();
-            fOut.close();
-
-        } catch (Exception e) {
-            Log.e("ERRR", "Could not create file",e);
-        }
-    }
-
-
-    class DownloadFileFromURL extends AsyncTask<String, String, String> {
-
-        /**
-         * Before starting background thread
-         * Show Progress Bar Dialog
-         * */
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        /**
-         * Downloading file in background thread
-         * */
-        @Override
-        protected String doInBackground(String... f_url) {
-            Log.d(TAG, "doInBackground: starts");
-            int count;
-            try {
-                URL url = new URL(expandUrl(f_url[0]));
-                URLConnection conection = url.openConnection();
-                conection.connect();
-                // getting file length
-                int lenghtOfFile = conection.getContentLength();
-
-                // input stream to read file - with 8k buffer
-                InputStream input = new BufferedInputStream(url.openStream(), 8192);
-
-                // Output stream to write file
-                OutputStream output = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + "/mm.mp3");
-
-                byte data[] = new byte[1024];
-
-                long total = 0;
-
-                Log.d(TAG, "doInBackground: downloading");
-
-                while ((count = input.read(data)) != -1) {
-                    total += count;
-                    // publishing the progress....
-                    // After this onProgressUpdate will be called
-                    publishProgress(""+(int)((total*100)/lenghtOfFile));
-
-                    // writing data to file
-                    output.write(data, 0, count);
-                }
-
-                Log.d(TAG, "doInBackground: finished");
-
-                // flushing output
-                output.flush();
-
-                // closing streams
-                output.close();
-                input.close();
-
-            } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
-            }
-
-            return null;
-        }
-
-        /**
-         * Updating progress bar
-         * */
-        protected void onProgressUpdate(String... progress) {
-            // setting progress percentage
-//            pDialog.setProgress(Integer.parseInt(progress[0]));
-            seekBar.setProgress(Integer.parseInt(progress[0]));
-        }
-
-        /**
-         * After completing background task
-         * Dismiss the progress dialog
-         * **/
-        @Override
-        protected void onPostExecute(String file_url) {
-            // dismiss the dialog after the file was downloaded
-
-            // Displaying downloaded image into image view
-            // Reading image path from sdcard
-            String imagePath = Environment.getExternalStorageDirectory().toString() + "/downloadedfile.jpg";
-            // setting downloaded into image view
-        }
-
-        public String expandUrl(String shortenedUrl) throws IOException {
-            URL url = new URL(shortenedUrl);
-            // open connection
-            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
-
-            // stop following browser redirect
-            httpURLConnection.setInstanceFollowRedirects(false);
-
-            // extract location header containing the actual destination URL
-            String expandedURL = httpURLConnection.getHeaderField("Location");
-            httpURLConnection.disconnect();
-
-            return expandedURL;
-        }
-    }
-
 
 }

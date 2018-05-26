@@ -16,20 +16,16 @@ import java.net.URLConnection;
 
 public class DownloadManager extends AsyncTask<String, String, String> {
     private static final String TAG = "DownloadManager";
-    private OnProgressChangeListener mOnProgressChangeListener;
-    private OnFileDownloadListener mOnFileDownloadListener;
+    private OnDownloadStatusListener mOnDownloadStatusListener;
 
-    public interface OnFileDownloadListener {
+    public interface OnDownloadStatusListener {
         void onFileDownloadFinished();
-    }
-
-    public interface OnProgressChangeListener {
         void updateProgress(String progress);
     }
 
-    public DownloadManager(OnProgressChangeListener onProgressChangeListener, OnFileDownloadListener fileDownloadlistener){
-        mOnProgressChangeListener = onProgressChangeListener;
-        mOnFileDownloadListener = fileDownloadlistener;
+
+    public DownloadManager(OnDownloadStatusListener listener){
+        mOnDownloadStatusListener = listener;
     }
 
     @Override
@@ -45,25 +41,17 @@ public class DownloadManager extends AsyncTask<String, String, String> {
             URL url = new URL(expandUrl(f_url[0]));
             URLConnection conection = url.openConnection();
             conection.connect();
-            // getting file length
             int lenghtOfFile = conection.getContentLength();
-
-            // input stream to read file - with 8k buffer
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
-
-            // Output stream to write file
             OutputStream output = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + "/mm.mp3");
 
             byte data[] = new byte[1024];
-
             long total = 0;
-
             Log.d(TAG, "doInBackground: downloading");
 
             while ((count = input.read(data)) != -1) {
                 total += count;
                 // publishing the progress....
-                // After this onProgressUpdate will be called
                 publishProgress("" + (int) ((total * 100) / lenghtOfFile));
 
                 // writing data to file
@@ -72,10 +60,7 @@ public class DownloadManager extends AsyncTask<String, String, String> {
 
             Log.d(TAG, "doInBackground: finished");
 
-            // flushing output
             output.flush();
-
-            // closing streams
             output.close();
             input.close();
 
@@ -88,23 +73,15 @@ public class DownloadManager extends AsyncTask<String, String, String> {
 
     protected void onProgressUpdate(String... progress) {
         // setting progress percentage
-//            pDialog.setProgress(Integer.parseInt(progress[0]));
-//        seekBar.setProgress(Integer.parseInt(progress[0]));
-        mOnProgressChangeListener.updateProgress(progress[0]);
+        mOnDownloadStatusListener.updateProgress(progress[0]);
     }
 
     @Override
-    protected void onPostExecute(String file_url) {
-        // dismiss the dialog after the file was downloaded
-
-        // Displaying downloaded image into image view
-        // Reading image path from sdcard
-        String imagePath = Environment.getExternalStorageDirectory().toString() + "/downloadedfile.jpg";
-        // setting downloaded into image view
-        mOnFileDownloadListener.onFileDownloadFinished();
+    protected void onPostExecute(String result) {
+        mOnDownloadStatusListener.onFileDownloadFinished();
     }
 
-    public String expandUrl(String shortenedUrl) throws IOException {
+    private String expandUrl(String shortenedUrl) throws IOException {
         URL url = new URL(shortenedUrl);
         // open connection
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);

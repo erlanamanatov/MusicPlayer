@@ -23,7 +23,7 @@ public class NotificationHelper extends ContextWrapper {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
             channel.enableLights(false);
-            channel.setSound(null, null);
+            channel.setSound(null,  null);
             channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
             getManager().createNotificationChannel(channel);
         }
@@ -51,6 +51,7 @@ public class NotificationHelper extends ContextWrapper {
                     .setOngoing(true)
                     .setAutoCancel(false);
         } else {
+            //Todo: return builder for Build.VERSION.SDK_INT < Build.VERSION_CODES.O
             return null;
         }
 

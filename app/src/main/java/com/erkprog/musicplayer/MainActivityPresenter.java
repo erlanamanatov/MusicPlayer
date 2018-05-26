@@ -7,7 +7,7 @@ import com.erkprog.musicplayer.repositories.impl.ServerSongsRepository;
 
 import java.util.List;
 
-public class MainActivityPresenter implements SongsRepository.OnFinishedListener, DownloadManager.OnProgressChangeListener, DownloadManager.OnFileDownloadListener {
+public class MainActivityPresenter implements SongsRepository.OnFinishedListener, DownloadManager.OnDownloadStatusListener{
     private static final String TAG = "MainActivityPresenter";
 
     private MainActivityView view;
@@ -23,7 +23,7 @@ public class MainActivityPresenter implements SongsRepository.OnFinishedListener
     }
 
     void downloadSong(Song song){
-        new DownloadManager(this, this).execute(song.getUrl());
+        new DownloadManager(this).execute(song.getUrl());
     }
 
     @Override

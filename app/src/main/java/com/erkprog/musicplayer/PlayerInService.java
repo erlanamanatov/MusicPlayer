@@ -122,7 +122,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         try {
             progressBarHandler.postDelayed(mUpdateTimeTask, 100);
         } catch (Exception e) {
-
+            Log.d(TAG, "updateProgressBar: error");
         }
     }
 
