@@ -14,18 +14,21 @@ import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class DownloadManager extends AsyncTask<String, String, String> {
+public class DownloadManager extends AsyncTask<Song, String, Song> {
     private static final String TAG = "DownloadManager";
     private OnDownloadStatusListener mOnDownloadStatusListener;
+    private int mSongPosition;
 
     public interface OnDownloadStatusListener {
         void onFileDownloadFinished();
         void updateProgress(String progress);
+        void onSongDownloaded(Song song, int songPosition);
     }
 
 
-    public DownloadManager(OnDownloadStatusListener listener){
+    public DownloadManager(OnDownloadStatusListener listener, int songPosition){
         mOnDownloadStatusListener = listener;
+        mSongPosition = songPosition;
     }
 
     @Override
@@ -34,11 +37,11 @@ public class DownloadManager extends AsyncTask<String, String, String> {
     }
 
     @Override
-    protected String doInBackground(String... f_url) {
+    protected Song doInBackground(Song... songs) {
         Log.d(TAG, "doInBackground: starts");
         int count;
         try {
-            URL url = new URL(expandUrl(f_url[0]));
+            URL url = new URL(expandUrl(songs[0].getUrl()));
             URLConnection conection = url.openConnection();
             conection.connect();
             int lenghtOfFile = conection.getContentLength();
@@ -64,6 +67,8 @@ public class DownloadManager extends AsyncTask<String, String, String> {
             output.close();
             input.close();
 
+            return songs[0];
+
         } catch (Exception e) {
             Log.e("Error: ", e.getMessage());
         }
@@ -77,8 +82,10 @@ public class DownloadManager extends AsyncTask<String, String, String> {
     }
 
     @Override
-    protected void onPostExecute(String result) {
-        mOnDownloadStatusListener.onFileDownloadFinished();
+    protected void onPostExecute(Song result) {
+        result.setName("Downloaded");
+//        mOnDownloadStatusListener.onFileDownloadFinished();
+        mOnDownloadStatusListener.onSongDownloaded(result, mSongPosition);
     }
 
     private String expandUrl(String shortenedUrl) throws IOException {

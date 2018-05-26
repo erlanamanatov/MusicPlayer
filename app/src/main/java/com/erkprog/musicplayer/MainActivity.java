@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
             @Override
             public void onDownloadClick(int position) {
 //                mRecyclerViewAdapter.onDownloadClick(position);
-                mPresenter.downloadSong(mRecyclerViewAdapter.getSong(position));
+                mPresenter.downloadSong(mRecyclerViewAdapter.getSong(position), position);
 
             }
         });
@@ -112,6 +112,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @Override
     public void onFileDownloaded() {
         Toast.makeText(this, "File downloaded", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void updateSong(Song song, int position) {
+        mRecyclerViewAdapter.notifyItemChanged(position);
     }
 
     @Override

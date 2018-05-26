@@ -9,4 +9,6 @@ public interface MainActivityView {
     void updateProgress(int progress);
 
     void onFileDownloaded();
+
+    void updateSong(Song song, int position);
 }

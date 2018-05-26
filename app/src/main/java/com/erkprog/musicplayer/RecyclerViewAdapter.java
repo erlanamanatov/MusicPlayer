@@ -83,6 +83,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         notifyDataSetChanged();
     }
 
+
+
     static class SongViewHolder extends RecyclerView.ViewHolder {
         ImageView coverImage, downloadImg;
         TextView name, artists;

@@ -22,8 +22,9 @@ public class MainActivityPresenter implements SongsRepository.OnFinishedListener
         mSongsRepository.getDataFromServer(this);
     }
 
-    void downloadSong(Song song){
-        new DownloadManager(this).execute(song.getUrl());
+    void downloadSong(Song song, int position){
+//        new DownloadManager(this).execute(song.getUrl());
+        new DownloadManager(this, position).execute(song);
     }
 
     @Override
@@ -33,6 +34,11 @@ public class MainActivityPresenter implements SongsRepository.OnFinishedListener
         }
 
         view.displaySongs(songList);
+    }
+
+    @Override
+    public void onSongDownloaded(Song song, int position) {
+        view.updateSong(song, position);
     }
 
     @Override
