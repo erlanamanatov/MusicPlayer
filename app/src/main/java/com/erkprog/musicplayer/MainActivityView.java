@@ -4,11 +4,9 @@ import java.util.List;
 
 public interface MainActivityView {
 
-    void displaySongs(List<Song> songList);
+    void displaySongs(List<SongItem> songItems);
 
-    void updateProgress(int progress);
+    void updateSongProgress(int songItemPosition);
 
-    void onFileDownloaded();
-
-    void updateSong(Song song, int position);
+    void updateSong(int songItemPosition);
 }

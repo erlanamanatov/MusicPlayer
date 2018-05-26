@@ -3,9 +3,7 @@ package com.erkprog.musicplayer;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,18 +16,6 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,14 +55,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
         final RecyclerView recyclerView = findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setLayoutManager(layoutManager);
-
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(itemDecoration);
 
-
-        mRecyclerViewAdapter = new RecyclerViewAdapter(this, new ArrayList<Song>());
+        mRecyclerViewAdapter = new RecyclerViewAdapter(this, new ArrayList<SongItem>());
         mRecyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
@@ -85,16 +68,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
             @Override
             public void onDownloadClick(int position) {
-//                mRecyclerViewAdapter.onDownloadClick(position);
-                mPresenter.downloadSong(mRecyclerViewAdapter.getSong(position), position);
-
+                if (isWriteStoragePermissionGranted()) {
+                    mPresenter.downloadSong(mRecyclerViewAdapter.getSongItem(position), position);
+                }
             }
         });
         recyclerView.setAdapter(mRecyclerViewAdapter);
     }
 
     private void playSong(int position) {
-        Song song = mRecyclerViewAdapter.getSong(position);
+        Song song = mRecyclerViewAdapter.getSongItem(position).getSong();
         playerService = new Intent(MainActivity.this, PlayerInService.class);
         playerService.putExtra("songUrl", song.getUrl());
         playerService.putExtra("songName", song.getName());
@@ -104,25 +87,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     }
 
     @Override
-    public void updateProgress(int progress) {
-//        seekBar.setProgress(progress);
-        mProgressBar.setProgress(progress);
-    }
-
-    @Override
-    public void onFileDownloaded() {
-        Toast.makeText(this, "File downloaded", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void updateSong(Song song, int position) {
+    public void updateSongProgress(int position) {
         mRecyclerViewAdapter.notifyItemChanged(position);
     }
 
     @Override
-    public void displaySongs(List<Song> songList) {
-        Log.d(TAG, "displaySongs: songList " + songList.size());
-        mRecyclerViewAdapter.loadNewData(songList);
+    public void updateSong(int songItemPosition) {
+        mRecyclerViewAdapter.notifyItemChanged(songItemPosition);
+    }
+
+    @Override
+    public void displaySongs(List<SongItem> songItems) {
+        Log.d(TAG, "displaySongs: songList " + songItems.size());
+        mRecyclerViewAdapter.loadNewData(songItems);
     }
 
     @Override

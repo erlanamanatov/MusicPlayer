@@ -5,6 +5,7 @@ import android.util.Log;
 import com.erkprog.musicplayer.repositories.SongsRepository;
 import com.erkprog.musicplayer.repositories.impl.ServerSongsRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivityPresenter implements SongsRepository.OnFinishedListener, DownloadManager.OnDownloadStatusListener{
@@ -18,41 +19,47 @@ public class MainActivityPresenter implements SongsRepository.OnFinishedListener
         mSongsRepository = new ServerSongsRepository();
     }
 
+    /*
+    getting data from server
+     */
     void loadSongs() {
         mSongsRepository.getDataFromServer(this);
     }
 
-    void downloadSong(Song song, int position){
-//        new DownloadManager(this).execute(song.getUrl());
-        new DownloadManager(this, position).execute(song);
-    }
-
     @Override
     public void onFinished(List<Song> songList) {
+        List<SongItem> songItems = new ArrayList<>();
         for (Song song : songList) {
             Log.d(TAG, "onFinished: " + song.toString());
+            songItems.add(new SongItem(song));
         }
 
-        view.displaySongs(songList);
+        view.displaySongs(songItems);
     }
 
-    @Override
-    public void onSongDownloaded(Song song, int position) {
-        view.updateSong(song, position);
-    }
 
     @Override
     public void onFailure(Throwable t) {
         Log.d(TAG, "onFailure: " + t.getMessage());
     }
 
-    @Override
-    public void updateProgress(String progress) {
-        view.updateProgress(Integer.parseInt(progress));
+
+    /*
+    Downloading song
+     */
+
+    void downloadSong(SongItem songItem, int position){
+        new DownloadManager(songItem, position, this).download();
     }
 
     @Override
-    public void onFileDownloadFinished() {
-        view.onFileDownloaded();
+    public void updateSongProgress(int songItemPosition) {
+        view.updateSongProgress(songItemPosition);
     }
+
+    @Override
+    public void onSongDownloaded(int position) {
+        view.updateSong(position);
+    }
+
 }

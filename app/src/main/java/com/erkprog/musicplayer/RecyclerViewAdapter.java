@@ -6,22 +6,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.erkprog.musicplayer.repositories.SongsRepository;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.SongViewHolder> {
 
-    private List<Song> mSongList;
+    private List<SongItem> mSongItems;
     private Context mContext;
     private OnItemClickListener mlistener;
 
-    public RecyclerViewAdapter(Context context, List<Song> songList) {
-        mSongList = songList;
+    public RecyclerViewAdapter(Context context, List<SongItem> songItemList) {
+        mSongItems = songItemList;
         mContext = context;
     }
 
@@ -35,21 +34,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         mlistener = listener;
     }
 
-//    public void onItemClick(int position){
-//        String t = mSongList.get(position).getName();
-//        Toast.makeText(mContext, t, Toast.LENGTH_SHORT).show();
-//    }
-
-//    public Song onItemClick(int position){
-//        return mSongList.get(position);
-//    }
-
-    public Song getSong(int position) {
-        return mSongList.get(position);
-    }
-
-    public void onDownloadClick(int position) {
-        Toast.makeText(mContext, "On Download clicked", Toast.LENGTH_SHORT).show();
+    public SongItem getSongItem(int position) {
+        return mSongItems.get(position);
     }
 
     @Override
@@ -60,34 +46,43 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(SongViewHolder holder, int position) {
-        Song songItem = mSongList.get(position);
+        SongItem songItem = mSongItems.get(position);
+        Song song = songItem.getSong();
 
-        Picasso.get().load(songItem.getImageUrl())
+        Picasso.get().load(song.getImageUrl())
                 .error(R.drawable.place_holder)
                 .placeholder(R.drawable.place_holder)
                 .into(holder.coverImage);
 
-        holder.name.setText(songItem.getName());
-        holder.artists.setText(songItem.getArtists());
-//        holder.downloadImg.setVisibility(View.INVISIBLE);
+        holder.name.setText(song.getName());
+        holder.artists.setText(song.getArtists());
+
+        holder.progressBar.setProgress(songItem.getProgress());
+
+        if (songItem.isLocallyAvailable()){
+            holder.downloadImg.setImageResource(R.drawable.saved);
+            holder.downloadImg.setEnabled(false);
+        } else {
+            holder.downloadImg.setImageResource(R.drawable.song_download);
+            holder.downloadImg.setEnabled(true);
+        }
 
     }
 
     @Override
     public int getItemCount() {
-        return (mSongList != null ? mSongList.size() : 0);
+        return (mSongItems != null ? mSongItems.size() : 0);
     }
 
-    void loadNewData(List<Song> songList) {
-        mSongList = songList;
+    void loadNewData(List<SongItem> songItemList) {
+        mSongItems = songItemList;
         notifyDataSetChanged();
     }
-
-
 
     static class SongViewHolder extends RecyclerView.ViewHolder {
         ImageView coverImage, downloadImg;
         TextView name, artists;
+        ProgressBar progressBar;
 
         public SongViewHolder(View itemView, final OnItemClickListener listener) {
             super(itemView);
@@ -96,6 +91,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             this.downloadImg = itemView.findViewById(R.id.download_img);
             this.name = itemView.findViewById(R.id.name);
             this.artists = itemView.findViewById(R.id.artists);
+            this.progressBar = itemView.findViewById(R.id.songDownloadProgress);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

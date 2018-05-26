@@ -14,21 +14,26 @@ import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class DownloadManager extends AsyncTask<Song, String, Song> {
+public class DownloadManager extends AsyncTask<String, Integer, String> {
     private static final String TAG = "DownloadManager";
     private OnDownloadStatusListener mOnDownloadStatusListener;
     private int mSongPosition;
+    private SongItem mSongItem;
 
     public interface OnDownloadStatusListener {
-        void onFileDownloadFinished();
-        void updateProgress(String progress);
-        void onSongDownloaded(Song song, int songPosition);
+        void updateSongProgress(int songItemPosition);
+        void onSongDownloaded(int songItemPosition);
     }
 
 
-    public DownloadManager(OnDownloadStatusListener listener, int songPosition){
+    public DownloadManager(SongItem songItem, int songPosition, OnDownloadStatusListener listener){
+        mSongItem = songItem;
         mOnDownloadStatusListener = listener;
         mSongPosition = songPosition;
+    }
+
+    public void download(){
+        this.execute(mSongItem.getSong().getUrl());
     }
 
     @Override
@@ -37,11 +42,11 @@ public class DownloadManager extends AsyncTask<Song, String, Song> {
     }
 
     @Override
-    protected Song doInBackground(Song... songs) {
+    protected String doInBackground(String... songUrl) {
         Log.d(TAG, "doInBackground: starts");
         int count;
         try {
-            URL url = new URL(expandUrl(songs[0].getUrl()));
+            URL url = new URL(expandUrl(songUrl[0]));
             URLConnection conection = url.openConnection();
             conection.connect();
             int lenghtOfFile = conection.getContentLength();
@@ -55,7 +60,12 @@ public class DownloadManager extends AsyncTask<Song, String, Song> {
             while ((count = input.read(data)) != -1) {
                 total += count;
                 // publishing the progress....
-                publishProgress("" + (int) ((total * 100) / lenghtOfFile));
+//                publishProgress((int) ((total * 100) / lenghtOfFile));
+
+                int progress = (int) ((total * 100) / lenghtOfFile);
+                if (progress % 10 == 0) {
+                    publishProgress(progress);
+                }
 
                 // writing data to file
                 output.write(data, 0, count);
@@ -67,25 +77,26 @@ public class DownloadManager extends AsyncTask<Song, String, Song> {
             output.close();
             input.close();
 
-            return songs[0];
+            return "some result";
 
         } catch (Exception e) {
             Log.e("Error: ", e.getMessage());
         }
-
         return null;
     }
 
-    protected void onProgressUpdate(String... progress) {
+    protected void onProgressUpdate(Integer... progress) {
         // setting progress percentage
-        mOnDownloadStatusListener.updateProgress(progress[0]);
+        mSongItem.setProgress(progress[0]);
+//        mOnDownloadStatusListener.updateProgress(progress[0], mSongPosition);
+        mOnDownloadStatusListener.updateSongProgress(mSongPosition);
     }
 
     @Override
-    protected void onPostExecute(Song result) {
-        result.setName("Downloaded");
+    protected void onPostExecute(String result) {
 //        mOnDownloadStatusListener.onFileDownloadFinished();
-        mOnDownloadStatusListener.onSongDownloaded(result, mSongPosition);
+        mSongItem.setLocallyAvailable(true);
+        mOnDownloadStatusListener.onSongDownloaded(mSongPosition);
     }
 
     private String expandUrl(String shortenedUrl) throws IOException {

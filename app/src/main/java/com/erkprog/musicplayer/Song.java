@@ -35,10 +35,6 @@ public class Song {
         return imageUrl;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public String toString() {
         return "Song{" +
@@ -48,7 +44,4 @@ public class Song {
                 ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }
-
-
-
 }
