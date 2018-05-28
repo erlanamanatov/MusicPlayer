@@ -63,7 +63,7 @@ public class DownloadManager extends AsyncTask<String, Integer, String> {
 //                publishProgress((int) ((total * 100) / lenghtOfFile));
 
                 int progress = (int) ((total * 100) / lenghtOfFile);
-                if (progress % 10 == 0) {
+                if (progress % 10 == 0 || progress == 1 ||progress ==6) {
                     publishProgress(progress);
                 }
 
