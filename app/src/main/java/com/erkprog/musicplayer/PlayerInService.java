@@ -1,25 +1,21 @@
 package com.erkprog.musicplayer;
 
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import java.lang.ref.WeakReference;
-import java.util.Random;
 
 public class PlayerInService extends Service implements OnClickListener, MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
     private static final String TAG = "PlayerInService";
@@ -41,7 +37,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate: test");
+        Log.d(TAG, "onCreate: starts");
         mp = new MediaPlayer();
         mp.reset();
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -55,12 +51,11 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         initUI();
         Log.d(TAG, "onStartCommand: Starts");
         boolean startOnResume = intent.getBooleanExtra("onResume", false);
-        Log.d(TAG, "onStartCommand: " + startOnResume);
         if (!startOnResume) {
             mDataSource = intent.getStringExtra("songUrl");
             songName = intent.getStringExtra("songName");
             songArtists = intent.getStringExtra("songArtists");
-            Log.d(TAG, "onStartCommand: " + songName + songArtists);
+            Log.d(TAG, "onStartCommand: songName: " + songName + ", songArtists" + songArtists);
             playSong();
         }
 
@@ -89,11 +84,11 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnPlay:
-                Log.d(TAG, "onClick: Clicked button");
+                Log.d(TAG, "onClick: btnPlayClicked");
 
                 if (mp.isPlaying()) {
-                    Log.d(TAG, "onClick: ");
                     mp.pause();
+                    Log.d(TAG, "onClick: mp pause");
                     isPause = true;
                     progressBarHandler.removeCallbacks(mUpdateTimeTask);
                     btnPlay.get().setBackgroundResource(R.drawable.play_img);
@@ -101,8 +96,8 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                 }
 
                 if (isPause) {
-                    Log.d(TAG, "onClick: in isPause");
                     mp.start();
+                    Log.d(TAG, "onClick: mp start");
                     isPause = false;
                     updateProgressBar();
                     btnPlay.get().setBackgroundResource(R.drawable.pause_img);
@@ -110,7 +105,6 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                 }
 
                 if (!mp.isPlaying()) {
-                    Log.d(TAG, "onClick: should PLay song");
                     playSong();
                 }
 
@@ -118,7 +112,6 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
             case R.id.btnStop:
                 mp.stop();
                 onCompletion(mp);
-//                textViewSongTime.get().setText("0.00/0.00"); // Displaying time completed playing
                 break;
 
         }
@@ -140,7 +133,6 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
             try {
                 totalDuration = mp.getDuration();
                 currentDuration = mp.getCurrentPosition();
-//                textViewSongTime.get().setText(Utility.milliSecondsToTimer(currentDuration) + "/" + Utility.milliSecondsToTimer(totalDuration)); // Displaying time completed playing
                 textSongCurrentTime.get().setText(Utility.milliSecondsToTimer(currentDuration));
                 textSongTotalTime.get().setText(Utility.milliSecondsToTimer(totalDuration));
                 playerSongName.get().setText(songName != null ? songName : "");
@@ -161,10 +153,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         if (mp != null) mp.release();
         helper.getManager().cancel(NOTIFICATION_ID);
         Log.d(TAG, "onDestroy: Service on destroy");
-
     }
-
-
 
     // Play song
     public void playSong() {
@@ -181,6 +170,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
 //            mp.setDataSource("http://hck.re/ZeSJFd");
             mp.setDataSource(mDataSource);
             mp.prepareAsync();
+            Log.d(TAG, "playSong: prepareAsync");
             mp.setOnPreparedListener(new OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
                     Log.d(TAG, "onPrepared: ready");
@@ -200,7 +190,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
     }
 
     private void showOnPlayNotification() {
-        Notification.Builder builder = helper.getChannelNotification(songName, songArtists);
+        NotificationCompat.Builder builder = helper.getChannelNotification(songName, songArtists);
         helper.getManager().notify(NOTIFICATION_ID, builder.build());
     }
 
