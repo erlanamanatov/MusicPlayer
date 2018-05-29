@@ -37,29 +37,37 @@ public class DatabaseSongRepository implements SongsRepository {
 
     private DatabaseHelper dbHelper;
 
+
     public interface OnTrackDownloadListener {
         void onMp3TrackDownloadComplete(SongItem songItem, int position, String mp3FilePath);
+
         void onMp3TrackDownloadError(int songItemPosition);
+
         void onMp3TrackDownloadProgress(int songItemPosition);
     }
 
     public interface OnCoverImageDownloadListener {
         void onCoverImageDownloadComplete(SongItem songItem, int position, String mp3FilePath, String coverImgFilePath);
+
         void onCoverImageDownloadError(int songItemPosition);
     }
 
     public DatabaseSongRepository(Context context) {
+        Log.d(TAG, "DatabaseSongRepository: Constructor");
         dbHelper = new DatabaseHelper(context);
         PRDownloader.initialize(context);
-        Log.d(TAG, "DatabaseSongRepository: Created");
 
+    }
+
+    public boolean addSongToDB(Song song, String mp3FilePath, String coverImgFilePath) {
+        return dbHelper.addSongToDB(new Song(song.getName(), mp3FilePath, song.getArtists(), coverImgFilePath));
     }
 
     private void createDirIfNotExist() {
         Log.d(TAG, "createDirIfNotExist: starts");
         File dataDir = new File(Environment.getExternalStorageDirectory(), mDataDir);
-        if (!dataDir.exists()){
-            if (dataDir.mkdirs()){ 
+        if (!dataDir.exists()) {
+            if (dataDir.mkdirs()) {
                 Log.d(TAG, "createDirIfNotExist: folder created");
             } else {
                 Log.d(TAG, "createDirIfNotExist: folder not created");
@@ -67,8 +75,8 @@ public class DatabaseSongRepository implements SongsRepository {
         }
         File songsDir = new File(Environment.getExternalStorageDirectory().toString()
                 + "/" + mDataDir, mSongsDir);
-        if (!songsDir.exists()){
-            if (songsDir.mkdirs()){
+        if (!songsDir.exists()) {
+            if (songsDir.mkdirs()) {
                 Log.d(TAG, "createDirIfNotExist: songsDir created");
             } else {
                 Log.d(TAG, "createDirIfNotExist: songsDir not created");
@@ -76,7 +84,7 @@ public class DatabaseSongRepository implements SongsRepository {
         }
         File coverDir = new File(Environment.getExternalStorageDirectory().toString()
                 + "/" + mDataDir, mCoverDir);
-        if (!coverDir.exists()){
+        if (!coverDir.exists()) {
             coverDir.mkdirs();
         }
     }
@@ -86,8 +94,8 @@ public class DatabaseSongRepository implements SongsRepository {
 
     }
 
-    public void downloadMp3Track(final SongItem songItem, final int position, final OnTrackDownloadListener listener){
-        Log.d(TAG, "downloadSong: started downloading");
+    public void downloadMp3Track(final SongItem songItem, final int position, final OnTrackDownloadListener listener) {
+        Log.d(TAG, "downloadSong: starts");
         createDirIfNotExist();
         String destinationFolder = Environment.getExternalStorageDirectory().toString()
                 + "/" + mDataDir
@@ -121,8 +129,8 @@ public class DatabaseSongRepository implements SongsRepository {
                 .setOnProgressListener(new OnProgressListener() {
                     @Override
                     public void onProgress(Progress progressBytes) {
-                        int progress =(int) (((double) progressBytes.currentBytes/progressBytes.totalBytes) * 100);
-                        if (progress % 10 == 0 || progress == 1 ||progress ==6) {
+                        int progress = (int) (((double) progressBytes.currentBytes / progressBytes.totalBytes) * 100);
+                        if (progress % 10 == 0 || progress == 1 || progress == 6) {
                             songItem.setProgress(progress);
                             listener.onMp3TrackDownloadProgress(position);
                         }
@@ -131,18 +139,20 @@ public class DatabaseSongRepository implements SongsRepository {
                 .start(new OnDownloadListener() {
                     @Override
                     public void onDownloadComplete() {
+                        Log.d(TAG, "onDownloadComplete: mp3 file downloaded successfully");
                         listener.onMp3TrackDownloadComplete(songItem, position, filePath);
                     }
 
                     @Override
                     public void onError(Error error) {
+                        Log.d(TAG, "onError: " + error.toString());
                         songItem.setProgress(0);
                         listener.onMp3TrackDownloadError(position);
                     }
                 });
     }
 
-    public void downloadCoverImg(final SongItem songItem, final int position, final String mp3FilePath, final OnCoverImageDownloadListener onCoverImageDownloadListener){
+    public void downloadCoverImg(final SongItem songItem, final int position, final String mp3FilePath, final OnCoverImageDownloadListener onCoverImageDownloadListener) {
         Log.d(TAG, "downloadCoverImg: starts");
         String destinationFolder = Environment.getExternalStorageDirectory().toString()
                 + "/" + mDataDir
@@ -182,33 +192,17 @@ public class DatabaseSongRepository implements SongsRepository {
                 .start(new OnDownloadListener() {
                     @Override
                     public void onDownloadComplete() {
+                        Log.d(TAG, "onDownloadComplete: coverImg downloaded successfully");
                         onCoverImageDownloadListener.onCoverImageDownloadComplete(songItem, position, mp3FilePath, coverImgFilePath);
                     }
 
                     @Override
                     public void onError(Error error) {
+                        Log.d(TAG, "onError: coverImg download error");
                         songItem.setProgress(0);
                         onCoverImageDownloadListener.onCoverImageDownloadError(position);
                     }
                 });
     }
 
-    public boolean addSong(Song song) {
-
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DatabaseHelper.KEY_NAME, song.getName());
-        contentValues.put(DatabaseHelper.KEY_ARTISTS, song.getArtists());
-        contentValues.put(DatabaseHelper.KEY_PATH, song.getUrl());
-
-        Log.d(TAG, "addSong: adding new song");
-
-        long result = db.insert(DatabaseHelper.TABLE_SONGS, null, contentValues);
-
-        if (result == -1) {
-            return false;
-        } else {
-            return true;
-        }
-    }
 }
