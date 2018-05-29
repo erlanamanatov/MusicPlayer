@@ -11,4 +11,6 @@ public interface MainActivityView {
     void updateSongProgress(int songItemPosition);
 
     void updateSong(int songItemPosition);
+
+    void showToast(String message);
 }

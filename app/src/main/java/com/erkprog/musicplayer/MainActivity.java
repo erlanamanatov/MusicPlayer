@@ -14,7 +14,7 @@ import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import com.erkprog.musicplayer.model.Song;
 import com.erkprog.musicplayer.model.SongItem;
 import com.erkprog.musicplayer.model.repositories.local.DatabaseSongRepository;
@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         songTotalTime.setText("0:00");
         playerSongName.setText("");
         playerSongArtists.setText("");
-
-
     }
 
     private void initRecyclerView() {
@@ -103,6 +101,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @Override
     public void updateSong(int songItemPosition) {
         mRecyclerViewAdapter.notifyItemChanged(songItemPosition);
+    }
+
+    @Override
+    public void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override
