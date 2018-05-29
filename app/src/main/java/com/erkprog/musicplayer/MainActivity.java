@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.erkprog.musicplayer.model.Song;
 import com.erkprog.musicplayer.model.SongItem;
+import com.erkprog.musicplayer.model.repositories.local.DatabaseSongRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +40,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
         initRecyclerView();
 
-        mPresenter = new MainActivityPresenter(this);
+        mPresenter = new MainActivityPresenter(this, new DatabaseSongRepository(getApplication()));
         mPresenter.loadSongs();
 
         btnPlay = findViewById(R.id.btnPlay);
-//        btnPlay.setBackgroundResource(R.drawable.play_img);
-//        btnPlay.setImageResource(R.drawable.play_img);
         btnStop = findViewById(R.id.btnStop);
         seekBar = findViewById(R.id.seekBar);
         songCurrentTime = findViewById(R.id.songCurrentTime);
@@ -55,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         songTotalTime.setText("0:00");
         playerSongName.setText("");
         playerSongArtists.setText("");
+
 
     }
 

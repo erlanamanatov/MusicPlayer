@@ -5,6 +5,7 @@ import android.util.Log;
 import com.erkprog.musicplayer.model.Song;
 import com.erkprog.musicplayer.model.SongItem;
 import com.erkprog.musicplayer.model.repositories.SongsRepository;
+import com.erkprog.musicplayer.model.repositories.local.DatabaseSongRepository;
 import com.erkprog.musicplayer.model.repositories.remote.ServerSongsRepository;
 import com.erkprog.musicplayer.utils.DownloadManager;
 
@@ -16,17 +17,19 @@ public class MainActivityPresenter implements SongsRepository.OnFinishedListener
 
     private MainActivityView view;
     private SongsRepository mSongsRepository;
+    private DatabaseSongRepository mDatabaseSongRepository;
 
-    public MainActivityPresenter(MainActivityView view) {
+    public MainActivityPresenter(MainActivityView view, DatabaseSongRepository dbSongRepository) {
         this.view = view;
         mSongsRepository = new ServerSongsRepository();
+        mDatabaseSongRepository = dbSongRepository;
     }
 
     /*
     getting data from server
      */
     void loadSongs() {
-        mSongsRepository.getDataFromServer(this);
+        mSongsRepository.getSongList(this);
     }
 
     @Override

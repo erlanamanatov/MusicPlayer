@@ -11,7 +11,7 @@ import retrofit2.Response;
 
 public class ServerSongsRepository implements SongsRepository {
     @Override
-    public void getDataFromServer(final OnFinishedListener onFinishedListener) {
+    public void getSongList(final OnFinishedListener onFinishedListener) {
 
         ApiInterface api = ApiClent.getInstance().create(ApiInterface.class);
 

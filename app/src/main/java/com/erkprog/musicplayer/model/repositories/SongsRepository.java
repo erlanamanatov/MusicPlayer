@@ -5,7 +5,7 @@ import com.erkprog.musicplayer.model.Song;
 import java.util.List;
 
 public interface SongsRepository {
-    void getDataFromServer(OnFinishedListener onFinishedListener);
+    void getSongList(OnFinishedListener onFinishedListener);
 
     interface OnFinishedListener {
         void onFinished(List<Song> songList);
