@@ -40,9 +40,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
         initRecyclerView();
 
-        mPresenter = new MainActivityPresenter(this, new DatabaseSongRepository(getApplication()));
-        mPresenter.loadSongs();
-
         btnPlay = findViewById(R.id.btnPlay);
         btnStop = findViewById(R.id.btnStop);
         seekBar = findViewById(R.id.seekBar);
@@ -54,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         songTotalTime.setText("0:00");
         playerSongName.setText("");
         playerSongArtists.setText("");
+
+        isWriteStoragePermissionGranted();
+        mPresenter = new MainActivityPresenter(this, new DatabaseSongRepository(getApplication()));
+        mPresenter.loadSongs();
     }
 
     private void initRecyclerView() {
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     }
 
     @Override
-    public void updateSong(int songItemPosition) {
+    public void updateSongItem(int songItemPosition) {
         mRecyclerViewAdapter.notifyItemChanged(songItemPosition);
     }
 

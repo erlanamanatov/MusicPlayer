@@ -2,8 +2,6 @@ package com.erkprog.musicplayer;
 
 import android.util.Log;
 
-import com.downloader.Error;
-import com.downloader.OnDownloadListener;
 import com.erkprog.musicplayer.model.Song;
 import com.erkprog.musicplayer.model.SongItem;
 import com.erkprog.musicplayer.model.repositories.SongsRepository;
@@ -69,17 +67,22 @@ public class MainActivityPresenter implements SongsRepository.OnFinishedListener
 
     @Override
     public void onSongDownloaded(int position) {
-        view.updateSong(position);
+        view.updateSongItem(position);
     }
 
 
     @Override
-    public void onMp3TrackDownloadComplete() {
+    public void onMp3TrackDownloadComplete(SongItem songItem, int position, String mp3FilePath) {
+//        songItem.getSong().setUrl(filePath);
+//        songItem.setLocallyAvailable(true);
+//        view.updateSongItem(position);
+        mDatabaseSongRepository.downloadCoverImg(songItem, position, mp3FilePath, this);
 
     }
 
     @Override
-    public void onMp3TrackDownloadError() {
+    public void onMp3TrackDownloadError(int songItemPosition) {
+        view.updateSongProgress(songItemPosition);
 
     }
 
@@ -89,12 +92,16 @@ public class MainActivityPresenter implements SongsRepository.OnFinishedListener
     }
 
     @Override
-    public void onCoverImageDownloadComplete() {
-
+    public void onCoverImageDownloadComplete(SongItem songItem, int position, String mp3FilePath, String coverImgFilePath) {
+        songItem.getSong().setUrl(mp3FilePath);
+        songItem.getSong().setImageUrl(coverImgFilePath);
+        songItem.setLocallyAvailable(true);
+        view.updateSongItem(position);
     }
 
     @Override
-    public void onCoverImageDownloadError() {
-
+    public void onCoverImageDownloadError(int songItemPosition) {
+        view.showToast("Downloading Error");
+        view.updateSongItem(songItemPosition);
     }
 }
