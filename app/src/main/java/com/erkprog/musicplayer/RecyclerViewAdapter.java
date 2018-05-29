@@ -13,6 +13,7 @@ import com.erkprog.musicplayer.model.Song;
 import com.erkprog.musicplayer.model.SongItem;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.SongViewHolder> {
@@ -51,10 +52,17 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         SongItem songItem = mSongItems.get(position);
         Song song = songItem.getSong();
 
-        Picasso.get().load(song.getImageUrl())
-                .error(R.drawable.place_holder)
-                .placeholder(R.drawable.place_holder)
-                .into(holder.coverImage);
+        if (song.getImageUrl().contains("http")) {
+            Picasso.get().load(song.getImageUrl())
+                    .error(R.drawable.place_holder)
+                    .placeholder(R.drawable.place_holder)
+                    .into(holder.coverImage);
+        } else {
+            Picasso.get().load(new File(song.getImageUrl()))
+                    .error(R.drawable.place_holder)
+                    .placeholder(R.drawable.place_holder)
+                    .into(holder.coverImage);
+        }
 
         holder.name.setText(song.getName());
         holder.artists.setText(song.getArtists());
