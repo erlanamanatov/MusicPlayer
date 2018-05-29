@@ -1,4 +1,4 @@
-package com.erkprog.musicplayer;
+package com.erkprog.musicplayer.model.repositories.remote;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

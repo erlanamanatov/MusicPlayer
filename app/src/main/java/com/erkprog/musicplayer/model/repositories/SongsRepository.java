@@ -1,8 +1,6 @@
-package com.erkprog.musicplayer.repositories;
+package com.erkprog.musicplayer.model.repositories;
 
-import android.view.View;
-
-import com.erkprog.musicplayer.Song;
+import com.erkprog.musicplayer.model.Song;
 
 import java.util.List;
 

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -15,6 +16,10 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.erkprog.musicplayer.utils.NotificationHelper;
+import com.erkprog.musicplayer.utils.Utility;
+
 import java.lang.ref.WeakReference;
 
 public class PlayerInService extends Service implements OnClickListener, MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
@@ -169,6 +174,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
 //            Uri myUri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.bangla);
 //            mp.setDataSource("http://hck.re/ZeSJFd");
             mp.setDataSource(mDataSource);
+//            mp.setDataSource(Environment.getExternalStorageDirectory().toString() + "/mm.mp3");
             mp.prepareAsync();
             Log.d(TAG, "playSong: prepareAsync");
             mp.setOnPreparedListener(new OnPreparedListener() {

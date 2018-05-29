@@ -1,4 +1,4 @@
-package com.erkprog.musicplayer;
+package com.erkprog.musicplayer.model;
 
 import com.google.gson.annotations.SerializedName;
 

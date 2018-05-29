@@ -1,4 +1,4 @@
-package com.erkprog.musicplayer;
+package com.erkprog.musicplayer.model;
 
 public class SongItem {
     private Song mSong;
@@ -21,10 +21,6 @@ public class SongItem {
 
     public int getProgress() {
         return mProgress;
-    }
-
-    public void setSong(Song song) {
-        mSong = song;
     }
 
     public void setLocallyAvailable(boolean locallyAvailable) {

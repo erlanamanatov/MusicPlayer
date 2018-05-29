@@ -1,5 +1,7 @@
 package com.erkprog.musicplayer;
 
+import com.erkprog.musicplayer.model.SongItem;
+
 import java.util.List;
 
 public interface MainActivityView {

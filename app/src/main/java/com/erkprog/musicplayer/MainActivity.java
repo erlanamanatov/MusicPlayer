@@ -14,6 +14,10 @@ import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.erkprog.musicplayer.model.Song;
+import com.erkprog.musicplayer.model.SongItem;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,17 +150,17 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                Log.v(TAG,"Permission is granted2");
+                Log.v(TAG,"Write Permission is granted");
                 return true;
             } else {
 
-                Log.v(TAG,"Permission is revoked2");
+                Log.v(TAG,"Write Permission is revoked");
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
                 return false;
             }
         }
         else { //permission is automatically granted on sdk<23 upon installation
-            Log.v(TAG,"Permission is granted2");
+            Log.v(TAG,"Write Permission is granted");
             return true;
         }
     }
@@ -166,12 +170,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 2:
-                Log.d(TAG, "External storage2");
                 if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-                    Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
+                    Log.v(TAG,"Write Permission: "+permissions[0]+ " was "+grantResults[0]);
                     Log.d(TAG, "onRequestPermissionsResult: Granted");
                 }else{
-                    Log.d(TAG, "onRequestPermissionsResult: No permission");
+                    Log.d(TAG, "onRequest Write PermissionsResult: No permission");
                 }
                 break;
         }

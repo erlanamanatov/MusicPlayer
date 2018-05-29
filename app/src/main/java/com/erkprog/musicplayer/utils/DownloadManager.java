@@ -1,10 +1,15 @@
-package com.erkprog.musicplayer;
+package com.erkprog.musicplayer.utils;
 
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import com.erkprog.musicplayer.R;
+import com.erkprog.musicplayer.model.SongItem;
+
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +56,15 @@ public class DownloadManager extends AsyncTask<String, Integer, String> {
             conection.connect();
             int lenghtOfFile = conection.getContentLength();
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
-            OutputStream output = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + "/mm.mp3");
+
+            File dir = new File(Environment.getExternalStorageDirectory(), "Test Music Player");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            OutputStream output = new FileOutputStream(dir.toString()
+                    + "/" + mSongItem.getSong().getName() + " - " + mSongItem.getSong().getArtists()
+                    + ".mp3");
 
             byte data[] = new byte[1024];
             long total = 0;
@@ -88,13 +101,11 @@ public class DownloadManager extends AsyncTask<String, Integer, String> {
     protected void onProgressUpdate(Integer... progress) {
         // setting progress percentage
         mSongItem.setProgress(progress[0]);
-//        mOnDownloadStatusListener.updateProgress(progress[0], mSongPosition);
         mOnDownloadStatusListener.updateSongProgress(mSongPosition);
     }
 
     @Override
     protected void onPostExecute(String result) {
-//        mOnDownloadStatusListener.onFileDownloadFinished();
         mSongItem.setLocallyAvailable(true);
         mOnDownloadStatusListener.onSongDownloaded(mSongPosition);
     }
@@ -112,5 +123,23 @@ public class DownloadManager extends AsyncTask<String, Integer, String> {
         httpURLConnection.disconnect();
 
         return expandedURL;
+    }
+
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    /* Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
     }
 }

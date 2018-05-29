@@ -2,8 +2,11 @@ package com.erkprog.musicplayer;
 
 import android.util.Log;
 
-import com.erkprog.musicplayer.repositories.SongsRepository;
-import com.erkprog.musicplayer.repositories.impl.ServerSongsRepository;
+import com.erkprog.musicplayer.model.Song;
+import com.erkprog.musicplayer.model.SongItem;
+import com.erkprog.musicplayer.model.repositories.SongsRepository;
+import com.erkprog.musicplayer.model.repositories.remote.ServerSongsRepository;
+import com.erkprog.musicplayer.utils.DownloadManager;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.erkprog.musicplayer;
+package com.erkprog.musicplayer.utils;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+
+import com.erkprog.musicplayer.MainActivity;
+import com.erkprog.musicplayer.R;
 
 public class NotificationHelper extends ContextWrapper {
     private final static String CHANNEL_ID = "com.test.MusicPlayer";

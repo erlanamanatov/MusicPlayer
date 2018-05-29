@@ -1,4 +1,4 @@
-package com.erkprog.musicplayer;
+package com.erkprog.musicplayer.utils;
 
 public class Utility {
 

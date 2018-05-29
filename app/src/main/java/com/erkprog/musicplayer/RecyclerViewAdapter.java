@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.erkprog.musicplayer.model.Song;
+import com.erkprog.musicplayer.model.SongItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

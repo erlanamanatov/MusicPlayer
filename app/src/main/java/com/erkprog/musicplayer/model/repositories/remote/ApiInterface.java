@@ -1,4 +1,6 @@
-package com.erkprog.musicplayer;
+package com.erkprog.musicplayer.model.repositories.remote;
+
+import com.erkprog.musicplayer.model.Song;
 
 import java.util.List;
 
