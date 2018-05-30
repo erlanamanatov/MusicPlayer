@@ -32,14 +32,11 @@ public class NotificationHelper extends ContextWrapper {
         }
     }
 
-
     public NotificationManager getManager() {
         if (manager == null)
             manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         return manager;
     }
-
-
 
     public NotificationCompat.Builder getChannelNotification(String title, String body) {
         Context context = getApplicationContext();

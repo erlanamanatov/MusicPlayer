@@ -37,13 +37,21 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     private Intent playerService;
     private List<SongItem> mSongItems;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         initRecyclerView();
+        initControllers();
+        isWriteStoragePermissionGranted();
+        mPresenter = new MainActivityPresenter(this, new DatabaseSongRepository(getApplication()));
+        mPresenter.loadSongs();
+    }
 
+    private void initControllers() {
         btnPlay = findViewById(R.id.btnPlay);
         btnStop = findViewById(R.id.btnStop);
         seekBar = findViewById(R.id.seekBar);
@@ -57,10 +65,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         songTotalTime.setText("0:00");
         playerSongName.setText("");
         playerSongArtists.setText("");
-
-        isWriteStoragePermissionGranted();
-        mPresenter = new MainActivityPresenter(this, new DatabaseSongRepository(getApplication()));
-        mPresenter.loadSongs();
     }
 
     private void initRecyclerView() {
@@ -99,11 +103,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         playerService.putExtra("songArtists", song.getArtists());
         Log.d(TAG, "onCreate: Starting service");
         startService(playerService);
-    }
-
-    @Override
-    public void updateSongProgress(int position) {
-        mRecyclerViewAdapter.notifyItemChanged(position);
     }
 
     @Override
@@ -163,6 +162,21 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 2:
+                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    Log.v(TAG,"Write Permission: "+permissions[0]+ " was "+grantResults[0]);
+                    Log.d(TAG, "onRequestPermissionsResult: Granted");
+                }else{
+                    Log.d(TAG, "onRequest Write PermissionsResult: No permission");
+                }
+                break;
+        }
+    }
+
     public  boolean isWriteStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -179,21 +193,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         else { //permission is automatically granted on sdk<23 upon installation
             Log.v(TAG,"Write Permission is granted");
             return true;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 2:
-                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-                    Log.v(TAG,"Write Permission: "+permissions[0]+ " was "+grantResults[0]);
-                    Log.d(TAG, "onRequestPermissionsResult: Granted");
-                }else{
-                    Log.d(TAG, "onRequest Write PermissionsResult: No permission");
-                }
-                break;
         }
     }
 

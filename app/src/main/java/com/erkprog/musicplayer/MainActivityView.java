@@ -8,8 +8,6 @@ public interface MainActivityView {
 
     void displaySongs(List<SongItem> songItems);
 
-    void updateSongProgress(int songItemPosition);
-
     void updateSongItem(int songItemPosition);
 
     void showToast(String message);

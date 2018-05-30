@@ -12,6 +12,7 @@ import com.downloader.OnProgressListener;
 import com.downloader.OnStartOrResumeListener;
 import com.downloader.PRDownloader;
 import com.downloader.Progress;
+import com.downloader.database.DbHelper;
 import com.erkprog.musicplayer.model.Song;
 import com.erkprog.musicplayer.model.SongItem;
 import com.erkprog.musicplayer.model.repositories.SongsRepository;
@@ -24,47 +25,56 @@ public class DatabaseSongRepository implements SongsRepository {
     private static String mDataDir = "Test Music Player";
     private static String mSongsDir = "mp3files";
     private static String mCoverDir = "cover_img";
-    private DatabaseHelper dbHelper;
+    private Context mContext;
 
 
     public interface OnTrackDownloadListener {
         void onMp3TrackDownloadComplete(SongItem songItem, int position, String mp3FilePath);
 
-        void onMp3TrackDownloadError(int songItemPosition);
+        void onMp3TrackDownloadError(SongItem songItem, int songItemPosition);
 
-        void onMp3TrackDownloadProgress(int songItemPosition);
+        void onMp3TrackDownloadProgress(SongItem songItem, int songItemPosition, int progress);
     }
 
     public interface OnCoverImageDownloadListener {
         void onCoverImageDownloadComplete(SongItem songItem, int position, String mp3FilePath, String coverImgFilePath);
 
-        void onCoverImageDownloadError(int songItemPosition);
+        void onCoverImageDownloadError(SongItem songItem, int songItemPosition);
     }
 
     public DatabaseSongRepository(Context context) {
         Log.d(TAG, "DatabaseSongRepository: Constructor");
-        dbHelper = new DatabaseHelper(context);
+        mContext = context;
         PRDownloader.initialize(context);
 
     }
 
     @Override
     public void getSongList(OnFinishedListener onFinishedListener) {
+        DatabaseHelper dbHelper = new DatabaseHelper(mContext);
         try {
             ArrayList<Song> dbSongs = dbHelper.getAllSongs();
             Log.d(TAG, "getSongList: got list with " + dbSongs.size() + " items from DbHelper");
             onFinishedListener.onFinished(dbSongs);
         } catch (Exception e){
             onFinishedListener.onFailure(null);
+        }finally {
+            dbHelper.close();
         }
     }
 
     public boolean addSongToDB(Song song, String mp3FilePath, String coverImgFilePath) {
-        return dbHelper.addSongToDB(new Song(song.getName(), mp3FilePath, song.getArtists(), coverImgFilePath));
+        DatabaseHelper dbHelper = new DatabaseHelper(mContext);
+        boolean result =  dbHelper.addSongToDB(new Song(song.getName(), mp3FilePath, song.getArtists(), coverImgFilePath));
+        dbHelper.close();
+        return result;
     }
 
     public boolean isSongLocallyAvailable(Song song) {
-        return dbHelper.isSongInDB(song);
+        DatabaseHelper dbHelper = new DatabaseHelper(mContext);
+        boolean result =  dbHelper.isSongInDB(song);
+        dbHelper.close();
+        return result;
     }
 
     public void downloadMp3Track(final SongItem songItem, final int position, final OnTrackDownloadListener listener) {
@@ -104,8 +114,7 @@ public class DatabaseSongRepository implements SongsRepository {
                     public void onProgress(Progress progressBytes) {
                         int progress = (int) (((double) progressBytes.currentBytes / progressBytes.totalBytes) * 100);
                         if (progress % 10 == 0 || progress == 1 || progress == 6) {
-                            songItem.setProgress(progress);
-                            listener.onMp3TrackDownloadProgress(position);
+                            listener.onMp3TrackDownloadProgress(songItem, position, progress);
                         }
                     }
                 })
@@ -119,8 +128,7 @@ public class DatabaseSongRepository implements SongsRepository {
                     @Override
                     public void onError(Error error) {
                         Log.d(TAG, "onError: " + error.toString());
-                        songItem.setProgress(0);
-                        listener.onMp3TrackDownloadError(position);
+                        listener.onMp3TrackDownloadError(songItem, position);
                     }
                 });
     }
@@ -172,8 +180,7 @@ public class DatabaseSongRepository implements SongsRepository {
                     @Override
                     public void onError(Error error) {
                         Log.d(TAG, "onError: coverImg download error");
-                        songItem.setProgress(0);
-                        onCoverImageDownloadListener.onCoverImageDownloadError(position);
+                        onCoverImageDownloadListener.onCoverImageDownloadError(songItem, position);
                     }
                 });
     }
@@ -182,20 +189,12 @@ public class DatabaseSongRepository implements SongsRepository {
         Log.d(TAG, "createDirIfNotExist: starts");
         File dataDir = new File(Environment.getExternalStorageDirectory(), mDataDir);
         if (!dataDir.exists()) {
-            if (dataDir.mkdirs()) {
-                Log.d(TAG, "createDirIfNotExist: folder created");
-            } else {
-                Log.d(TAG, "createDirIfNotExist: folder not created");
-            }
+            dataDir.mkdirs();
         }
         File songsDir = new File(Environment.getExternalStorageDirectory().toString()
                 + "/" + mDataDir, mSongsDir);
         if (!songsDir.exists()) {
-            if (songsDir.mkdirs()) {
-                Log.d(TAG, "createDirIfNotExist: songsDir created");
-            } else {
-                Log.d(TAG, "createDirIfNotExist: songsDir not created");
-            }
+            songsDir.mkdirs();
         }
         File coverDir = new File(Environment.getExternalStorageDirectory().toString()
                 + "/" + mDataDir, mCoverDir);

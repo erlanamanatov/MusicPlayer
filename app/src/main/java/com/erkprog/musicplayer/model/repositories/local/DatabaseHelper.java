@@ -77,7 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Log.d(TAG, "getAllSongs: starts");
         ArrayList<Song> songList = new ArrayList<>();
 
-        //List of songs that we cant use, for example we have row in DB, but file not exists in storage
+        //List of songs that we cant use, for example we have row in DB, but file does not exist in storage
         ArrayList<Integer> unUsableSongs = new ArrayList<>();
 
         //select all query
@@ -113,11 +113,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
 
-        // close db connection
         db.close();
-
         return songList;
-
     }
 
     private boolean isSongUsable(Song song) {
@@ -133,6 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean isSongInDB(Song song) {
+        //TODO delete unUsable Songs first
         Log.d(TAG, "isSongInDB: starts, songName =" + song.getName());
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_SONGS, null,
@@ -149,8 +147,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.close();
             return false;
         }
-
-
-
     }
 }
