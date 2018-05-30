@@ -87,7 +87,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                int song_id = cursor.getColumnIndex(KEY_ID);
+                int song_id = cursor.getInt(cursor.getColumnIndex(KEY_ID));
                 Song song = new Song(cursor.getString(cursor.getColumnIndex(KEY_NAME)),
                         cursor.getString(cursor.getColumnIndex(KEY_TRACK_PATH)),
                         cursor.getString(cursor.getColumnIndex(KEY_ARTISTS)),
@@ -101,7 +101,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
 
-        Log.d(TAG, "getAllSongs: " + songList.size() + " songs found in DB");
+        Log.d(TAG, "getAllSongs: " + songList.size() + " usable songs found in DB");
         Log.d(TAG, "getAllSongs: unUsable Songs count: " + unUsableSongs.size());
 
 
