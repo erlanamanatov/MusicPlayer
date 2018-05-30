@@ -11,7 +11,9 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     public static ImageButton btnPlay, btnStop;
     public static SeekBar seekBar;
     public static TextView songCurrentTime, songTotalTime, playerSongName, playerSongArtists;
+    public static ProgressBar progressBar;
     private Intent playerService;
 
     @Override
@@ -47,6 +50,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         songTotalTime = findViewById(R.id.songTotalTime);
         playerSongName = findViewById(R.id.player_song_name);
         playerSongArtists = findViewById(R.id.player_song_artists);
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
         songCurrentTime.setText("0:00");
         songTotalTime.setText("0:00");
         playerSongName.setText("");

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -14,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -31,7 +31,8 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
     public static WeakReference<TextView> textSongTotalTime;
     public static WeakReference<TextView> playerSongName;
     public static WeakReference<TextView> playerSongArtists;
-    public static WeakReference<SeekBar> songProgressBar;
+    public static WeakReference<SeekBar> songSeekBar;
+    public static WeakReference<ProgressBar> connectionProgressBar;
     private NotificationHelper helper;
     private String mDataSource;
     private static String songName, songArtists;
@@ -79,8 +80,9 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         textSongTotalTime = new WeakReference<>(MainActivity.songTotalTime);
         playerSongName = new WeakReference<>(MainActivity.playerSongName);
         playerSongArtists = new WeakReference<>(MainActivity.playerSongArtists);
-        songProgressBar = new WeakReference<>(MainActivity.seekBar);
-        songProgressBar.get().setOnSeekBarChangeListener(this);
+        songSeekBar = new WeakReference<>(MainActivity.seekBar);
+        songSeekBar.get().setOnSeekBarChangeListener(this);
+        connectionProgressBar = new WeakReference<>(MainActivity.progressBar);
         btnPlay.get().setOnClickListener(this);
         btnStop.get().setOnClickListener(this);
         mp.setOnCompletionListener(this);
@@ -143,7 +145,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                 playerSongName.get().setText(songName != null ? songName : "");
                 playerSongArtists.get().setText(songArtists != null ? songArtists : "");
                 int progress = (int) (Utility.getProgressPercentage(currentDuration, totalDuration));
-                songProgressBar.get().setProgress(progress);    /* Running this thread after 100 milliseconds */
+                songSeekBar.get().setProgress(progress);    /* Running this thread after 100 milliseconds */
                 progressBarHandler.postDelayed(this, 100);
 
             } catch (Exception e) {
@@ -163,22 +165,21 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
     // Play song
     public void playSong() {
         Log.d(TAG, "playSong: starts");
+        connectionProgressBar.get().setVisibility(View.VISIBLE);
         progressBarHandler.removeCallbacks(mUpdateTimeTask);
-        songProgressBar.get().setProgress(0);
+        songSeekBar.get().setProgress(0);
         textSongCurrentTime.get().setText("0:00");
         textSongTotalTime.get().setText("0:00");
         showOnPlayNotification();
 
         try {
             mp.reset();
-//            Uri myUri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.bangla);
-//            mp.setDataSource("http://hck.re/ZeSJFd");
             mp.setDataSource(mDataSource);
-//            mp.setDataSource(Environment.getExternalStorageDirectory().toString() + "/mm.mp3");
             mp.prepareAsync();
             Log.d(TAG, "playSong: prepareAsync");
             mp.setOnPreparedListener(new OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
+                    connectionProgressBar.get().setVisibility(View.INVISIBLE);
                     Log.d(TAG, "onPrepared: ready");
                     try {
                         mp.start();
@@ -192,6 +193,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
 
         } catch (Exception e) {
             e.printStackTrace();
+            connectionProgressBar.get().setVisibility(View.INVISIBLE);
         }
     }
 
@@ -205,7 +207,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         Log.d(TAG, "onCompletion: triggered");
         textSongCurrentTime.get().setText("0.00");
         textSongTotalTime.get().setText("0.00");
-        songProgressBar.get().setProgress(0);
+        songSeekBar.get().setProgress(0);
         progressBarHandler.removeCallbacks(mUpdateTimeTask); /* Progress Update stop */
         helper.getManager().cancel(NOTIFICATION_ID);
         btnPlay.get().setBackgroundResource(R.drawable.play_img);
