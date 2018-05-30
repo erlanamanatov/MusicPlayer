@@ -9,7 +9,7 @@ import android.util.Log;
 import com.erkprog.musicplayer.model.Song;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final String TAG = "DatabaseHelper";
+    private static final String TAG = "myLogs:DatabaseHelper";
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "musicDB";
@@ -52,8 +52,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseHelper.KEY_NAME, song.getName());
         contentValues.put(DatabaseHelper.KEY_ARTISTS, song.getArtists());
-        contentValues.put(DatabaseHelper.KEY_TRACK_PATH, song.getUrl());
-        contentValues.put(DatabaseHelper.KEY_COVER_IMG_PATH, song.getImageUrl());
+        contentValues.put(DatabaseHelper.KEY_TRACK_PATH, song.getSongSource());
+        contentValues.put(DatabaseHelper.KEY_COVER_IMG_PATH, song.getImageSource());
 
         long result = db.insert(DatabaseHelper.TABLE_SONGS, null, contentValues);
 

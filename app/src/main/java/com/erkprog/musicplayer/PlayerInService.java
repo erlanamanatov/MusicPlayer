@@ -23,7 +23,7 @@ import com.erkprog.musicplayer.utils.Utility;
 import java.lang.ref.WeakReference;
 
 public class PlayerInService extends Service implements OnClickListener, MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
-    private static final String TAG = "PlayerInService";
+    private static final String TAG = "myLogs:PlayerInService";
     private static final int NOTIFICATION_ID = 82;
     private WeakReference<ImageButton> btnPlay;
     private WeakReference<ImageButton> btnStop;

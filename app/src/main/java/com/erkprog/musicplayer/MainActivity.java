@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainActivityView {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "myLogs:MainActivity";
 
     private MainActivityPresenter mPresenter;
     private RecyclerViewAdapter mRecyclerViewAdapter;
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         playerSongName.setText(song.getName());
         playerSongArtists.setText(song.getArtists());
         playerService = new Intent(MainActivity.this, PlayerInService.class);
-        playerService.putExtra("songUrl", song.getUrl());
+        playerService.putExtra("songUrl", song.getSongSource());
         playerService.putExtra("songName", song.getName());
         playerService.putExtra("songArtists", song.getArtists());
         Log.d(TAG, "onCreate: Starting service");

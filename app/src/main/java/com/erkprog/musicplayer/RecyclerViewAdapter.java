@@ -52,13 +52,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         SongItem songItem = mSongItems.get(position);
         Song song = songItem.getSong();
 
-        if (song.getImageUrl().contains("http")) {
-            Picasso.get().load(song.getImageUrl())
+        if (song.getImageSource().contains("http")) {
+            Picasso.get().load(song.getImageSource())
                     .error(R.drawable.place_holder)
                     .placeholder(R.drawable.place_holder)
                     .into(holder.coverImage);
         } else {
-            Picasso.get().load(new File(song.getImageUrl()))
+            Picasso.get().load(new File(song.getImageSource()))
                     .error(R.drawable.place_holder)
                     .placeholder(R.drawable.place_holder)
                     .into(holder.coverImage);

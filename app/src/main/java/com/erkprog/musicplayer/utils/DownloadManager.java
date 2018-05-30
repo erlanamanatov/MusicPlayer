@@ -1,11 +1,9 @@
 package com.erkprog.musicplayer.utils;
 
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
-import com.erkprog.musicplayer.R;
 import com.erkprog.musicplayer.model.SongItem;
 
 import java.io.BufferedInputStream;
@@ -20,7 +18,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class DownloadManager extends AsyncTask<String, Integer, String> {
-    private static final String TAG = "DownloadManager";
+    private static final String TAG = "myLogs:DownloadManager";
     private OnDownloadStatusListener mOnDownloadStatusListener;
     private int mSongPosition;
     private SongItem mSongItem;
@@ -38,7 +36,7 @@ public class DownloadManager extends AsyncTask<String, Integer, String> {
     }
 
     public void download(){
-        this.execute(mSongItem.getSong().getUrl());
+        this.execute(mSongItem.getSong().getSongSource());
     }
 
     @Override

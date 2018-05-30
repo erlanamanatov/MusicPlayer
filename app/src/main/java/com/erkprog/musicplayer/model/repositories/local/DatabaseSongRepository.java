@@ -1,10 +1,6 @@
 package com.erkprog.musicplayer.model.repositories.local;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.media.midi.MidiManager;
 import android.os.Environment;
 import android.util.Log;
 
@@ -15,21 +11,15 @@ import com.downloader.OnPauseListener;
 import com.downloader.OnProgressListener;
 import com.downloader.OnStartOrResumeListener;
 import com.downloader.PRDownloader;
-import com.downloader.PRDownloaderConfig;
 import com.downloader.Progress;
 import com.erkprog.musicplayer.model.Song;
 import com.erkprog.musicplayer.model.SongItem;
 import com.erkprog.musicplayer.model.repositories.SongsRepository;
-import com.erkprog.musicplayer.utils.DownloadManager;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.net.URL;
 
 public class DatabaseSongRepository implements SongsRepository {
-    private static final String TAG = "DatabaseSongRepository";
+    private static final String TAG = "myLogs:DatabaseSongRepository";
     private static String mDataDir = "Test Music Player";
     private static String mSongsDir = "mp3files";
     private static String mCoverDir = "cover_img";
@@ -104,7 +94,7 @@ public class DatabaseSongRepository implements SongsRepository {
         String fileName = songItem.getSong().getName() + " - " + songItem.getSong().getArtists() + ".mp3";
         final String filePath = destinationFolder + "/" + fileName;
 
-        int downloadId = PRDownloader.download(songItem.getSong().getUrl(),
+        int downloadId = PRDownloader.download(songItem.getSong().getSongSource(),
                 destinationFolder,
                 fileName)
                 .build()
@@ -161,7 +151,7 @@ public class DatabaseSongRepository implements SongsRepository {
         String fileName = songItem.getSong().getName() + " - " + songItem.getSong().getArtists() + ".jpg";
         final String coverImgFilePath = destinationFolder + "/" + fileName;
 
-        int downloadId = PRDownloader.download(songItem.getSong().getImageUrl(),
+        int downloadId = PRDownloader.download(songItem.getSong().getImageSource(),
                 destinationFolder,
                 fileName)
                 .build()

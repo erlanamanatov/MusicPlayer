@@ -14,7 +14,7 @@ import java.util.List;
 
 public class MainActivityPresenter implements SongsRepository.OnFinishedListener,
         DownloadManager.OnDownloadStatusListener, DatabaseSongRepository.OnTrackDownloadListener, DatabaseSongRepository.OnCoverImageDownloadListener{
-    private static final String TAG = "MainActivityPresenter";
+    private static final String TAG = "myLogs:Presenter";
 
     private MainActivityView view;
     private SongsRepository mSongsRepository;
@@ -91,9 +91,10 @@ public class MainActivityPresenter implements SongsRepository.OnFinishedListener
     @Override
     public void onCoverImageDownloadComplete(SongItem songItem, int position, String mp3FilePath, String coverImgFilePath) {
         if (mDatabaseSongRepository.addSongToDB(songItem.getSong(), mp3FilePath, coverImgFilePath)) {
-            songItem.getSong().setUrl(mp3FilePath);
-            songItem.getSong().setImageUrl(coverImgFilePath);
+            songItem.getSong().setSongSource(mp3FilePath);
+            songItem.getSong().setImageSource(coverImgFilePath);
             songItem.setLocallyAvailable(true);
+
             view.updateSongItem(position);
         } else {
             view.showToast("Error on saving song to DB.");
