@@ -176,6 +176,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
             mp.reset();
             mp.setDataSource(mDataSource);
             mp.prepareAsync();
+            btnStop.get().setEnabled(false);
             Log.d(TAG, "playSong: prepareAsync");
             mp.setOnPreparedListener(new OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
@@ -184,6 +185,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
                     try {
                         mp.start();
                         updateProgressBar();
+                        btnStop.get().setEnabled(true);
                         btnPlay.get().setBackgroundResource(R.drawable.pause_img);
                     } catch (Exception e) {
                         Log.i("EXCEPTION", "" + e.getMessage());
@@ -194,6 +196,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         } catch (Exception e) {
             e.printStackTrace();
             connectionProgressBar.get().setVisibility(View.INVISIBLE);
+            btnStop.get().setEnabled(true);
         }
     }
 
@@ -208,6 +211,7 @@ public class PlayerInService extends Service implements OnClickListener, MediaPl
         textSongCurrentTime.get().setText("0.00");
         textSongTotalTime.get().setText("0.00");
         songSeekBar.get().setProgress(0);
+        connectionProgressBar.get().setVisibility(View.INVISIBLE);
         progressBarHandler.removeCallbacks(mUpdateTimeTask); /* Progress Update stop */
         helper.getManager().cancel(NOTIFICATION_ID);
         btnPlay.get().setBackgroundResource(R.drawable.play_img);
