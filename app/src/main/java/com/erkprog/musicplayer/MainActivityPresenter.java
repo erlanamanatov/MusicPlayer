@@ -10,6 +10,7 @@ import com.erkprog.musicplayer.model.repositories.remote.ServerSongsRepository;
 import com.erkprog.musicplayer.utils.DownloadManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivityPresenter implements SongsRepository.OnFinishedListener,
@@ -31,17 +32,35 @@ public class MainActivityPresenter implements SongsRepository.OnFinishedListener
      */
     void loadSongs() {
         mSongsRepository.getSongList(this);
+        mDatabaseSongRepository.getSongList(this);
     }
 
     @Override
     public void onFinished(List<Song> songList) {
-        List<SongItem> songItems = new ArrayList<>();
-        for (Song song : songList) {
-            Log.d(TAG, "onFinished: " + song.toString());
-            songItems.add(new SongItem(song));
+        Log.d(TAG, "onFinished: starts");
+//        List<SongItem> songItems = new ArrayList<>();
+
+        if (!songList.isEmpty()){
+            for (Song song : songList) {
+                Log.d(TAG, "onFinished: " + song.toString());
+                if (song.getImageSource().contains("http")){
+                    if (!mDatabaseSongRepository.isSongLocallyAvailable(song)){
+                        Log.d(TAG, "onFinished: view should add item");
+                        view.addItem(new SongItem(song, false));
+                    }
+                } else {
+                    view.addItem(new SongItem(song, true));
+                }
+//                songItems.add(new SongItem(song));
+            }
         }
 
-        view.displaySongs(songItems);
+//        for (Song song : songList) {
+//            Log.d(TAG, "onFinished: " + song.toString());
+//            songItems.add(new SongItem(song));
+//        }
+
+//        view.displaySongs(songItems);
     }
 
 

@@ -13,4 +13,6 @@ public interface MainActivityView {
     void updateSongItem(int songItemPosition);
 
     void showToast(String message);
+
+    void addItem(SongItem songItem);
 }

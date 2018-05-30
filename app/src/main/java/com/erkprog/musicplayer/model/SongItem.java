@@ -11,6 +11,11 @@ public class SongItem {
         mProgress = 0;
     }
 
+    public SongItem(Song song, boolean locallyAvailable) {
+        mSong = song;
+        this.locallyAvailable = locallyAvailable;
+    }
+
     public Song getSong() {
         return mSong;
     }

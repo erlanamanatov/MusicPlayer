@@ -17,14 +17,13 @@ import com.erkprog.musicplayer.model.SongItem;
 import com.erkprog.musicplayer.model.repositories.SongsRepository;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class DatabaseSongRepository implements SongsRepository {
-    private static final String TAG = "myLogs:DatabaseSongRepository";
+    private static final String TAG = "myLogs:DatabaseRepo";
     private static String mDataDir = "Test Music Player";
     private static String mSongsDir = "mp3files";
     private static String mCoverDir = "cover_img";
-
-
     private DatabaseHelper dbHelper;
 
 
@@ -49,39 +48,23 @@ public class DatabaseSongRepository implements SongsRepository {
 
     }
 
+    @Override
+    public void getSongList(OnFinishedListener onFinishedListener) {
+        try {
+            ArrayList<Song> dbSongs = dbHelper.getAllSongs();
+            Log.d(TAG, "getSongList: got list with " + dbSongs.size() + " items from DbHelper");
+            onFinishedListener.onFinished(dbSongs);
+        } catch (Exception e){
+            onFinishedListener.onFailure(null);
+        }
+    }
+
     public boolean addSongToDB(Song song, String mp3FilePath, String coverImgFilePath) {
         return dbHelper.addSongToDB(new Song(song.getName(), mp3FilePath, song.getArtists(), coverImgFilePath));
     }
 
-    private void createDirIfNotExist() {
-        Log.d(TAG, "createDirIfNotExist: starts");
-        File dataDir = new File(Environment.getExternalStorageDirectory(), mDataDir);
-        if (!dataDir.exists()) {
-            if (dataDir.mkdirs()) {
-                Log.d(TAG, "createDirIfNotExist: folder created");
-            } else {
-                Log.d(TAG, "createDirIfNotExist: folder not created");
-            }
-        }
-        File songsDir = new File(Environment.getExternalStorageDirectory().toString()
-                + "/" + mDataDir, mSongsDir);
-        if (!songsDir.exists()) {
-            if (songsDir.mkdirs()) {
-                Log.d(TAG, "createDirIfNotExist: songsDir created");
-            } else {
-                Log.d(TAG, "createDirIfNotExist: songsDir not created");
-            }
-        }
-        File coverDir = new File(Environment.getExternalStorageDirectory().toString()
-                + "/" + mDataDir, mCoverDir);
-        if (!coverDir.exists()) {
-            coverDir.mkdirs();
-        }
-    }
-
-    @Override
-    public void getSongList(OnFinishedListener onFinishedListener) {
-
+    public boolean isSongLocallyAvailable(Song song) {
+        return dbHelper.isSongInDB(song);
     }
 
     public void downloadMp3Track(final SongItem songItem, final int position, final OnTrackDownloadListener listener) {
@@ -193,6 +176,32 @@ public class DatabaseSongRepository implements SongsRepository {
                         onCoverImageDownloadListener.onCoverImageDownloadError(position);
                     }
                 });
+    }
+
+    private void createDirIfNotExist() {
+        Log.d(TAG, "createDirIfNotExist: starts");
+        File dataDir = new File(Environment.getExternalStorageDirectory(), mDataDir);
+        if (!dataDir.exists()) {
+            if (dataDir.mkdirs()) {
+                Log.d(TAG, "createDirIfNotExist: folder created");
+            } else {
+                Log.d(TAG, "createDirIfNotExist: folder not created");
+            }
+        }
+        File songsDir = new File(Environment.getExternalStorageDirectory().toString()
+                + "/" + mDataDir, mSongsDir);
+        if (!songsDir.exists()) {
+            if (songsDir.mkdirs()) {
+                Log.d(TAG, "createDirIfNotExist: songsDir created");
+            } else {
+                Log.d(TAG, "createDirIfNotExist: songsDir not created");
+            }
+        }
+        File coverDir = new File(Environment.getExternalStorageDirectory().toString()
+                + "/" + mDataDir, mCoverDir);
+        if (!coverDir.exists()) {
+            coverDir.mkdirs();
+        }
     }
 
 }

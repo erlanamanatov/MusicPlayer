@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     public static TextView songCurrentTime, songTotalTime, playerSongName, playerSongArtists;
     public static ProgressBar progressBar;
     private Intent playerService;
+    private List<SongItem> mSongItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(itemDecoration);
 
-        mRecyclerViewAdapter = new RecyclerViewAdapter(this, new ArrayList<SongItem>());
+        mSongItems = new ArrayList<>();
+        mRecyclerViewAdapter = new RecyclerViewAdapter(this, mSongItems);
         mRecyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
@@ -131,6 +133,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
             }
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void addItem(SongItem songItem) {
+        mSongItems.add(songItem);
+        mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
     }
 
     @Override

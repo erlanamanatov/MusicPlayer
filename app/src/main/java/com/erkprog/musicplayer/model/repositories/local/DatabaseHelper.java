@@ -2,11 +2,17 @@ package com.erkprog.musicplayer.model.repositories.local;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.ListView;
 
 import com.erkprog.musicplayer.model.Song;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "myLogs:DatabaseHelper";
@@ -21,8 +27,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String KEY_TRACK_PATH = "songPath";
     public static final String KEY_COVER_IMG_PATH = "coverImgPath";
 
-    public DatabaseHelper(Context context){
-        super (context, DATABASE_NAME, null, DATABASE_VERSION);
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -56,6 +62,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(DatabaseHelper.KEY_COVER_IMG_PATH, song.getImageSource());
 
         long result = db.insert(DatabaseHelper.TABLE_SONGS, null, contentValues);
+        db.close();
 
         if (result == -1) {
             Log.d(TAG, "addSongToDB: error");
@@ -64,5 +71,86 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.d(TAG, "addSongToDB: new song added");
             return true;
         }
+    }
+
+    public ArrayList<Song> getAllSongs() {
+        Log.d(TAG, "getAllSongs: starts");
+        ArrayList<Song> songList = new ArrayList<>();
+
+        //List of songs that we cant use, for example we have row in DB, but file not exists in storage
+        ArrayList<Integer> unUsableSongs = new ArrayList<>();
+
+        //select all query
+        String query = "SELECT * FROM " + TABLE_SONGS;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int song_id = cursor.getColumnIndex(KEY_ID);
+                Song song = new Song(cursor.getString(cursor.getColumnIndex(KEY_NAME)),
+                        cursor.getString(cursor.getColumnIndex(KEY_TRACK_PATH)),
+                        cursor.getString(cursor.getColumnIndex(KEY_ARTISTS)),
+                        cursor.getString(cursor.getColumnIndex(KEY_COVER_IMG_PATH)));
+                if (!isSongUsable(song)) {
+                    unUsableSongs.add(song_id);
+                } else {
+                    songList.add(song);
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        Log.d(TAG, "getAllSongs: " + songList.size() + " songs found in DB");
+        Log.d(TAG, "getAllSongs: unUsable Songs count: " + unUsableSongs.size());
+
+
+        //delete unUsable songs from db
+        if (unUsableSongs.size() > 0) {
+            for (int id : unUsableSongs) {
+                db.delete(TABLE_SONGS, KEY_ID + "= ?", new String[]{String.valueOf(id)});
+                Log.d(TAG, "getAllSongs: song deleted from db, id = " + id);
+            }
+        }
+
+        // close db connection
+        db.close();
+
+        return songList;
+
+    }
+
+    private boolean isSongUsable(Song song) {
+        File trackPath = new File(song.getSongSource());
+        if (!trackPath.exists()) {
+            return false;
+        }
+        File coverImgPath = new File(song.getImageSource());
+        if (!coverImgPath.exists()) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isSongInDB(Song song) {
+        Log.d(TAG, "isSongInDB: starts, songName =" + song.getName());
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_SONGS, null,
+                "( " + KEY_NAME + "= ?)  and " + "(" + KEY_ARTISTS + " = ?)",
+                new String[]{song.getName(), song.getArtists()},
+                null, null, null);
+
+        if (cursor.moveToFirst()){
+            Log.d(TAG, "isSongInDB: true");
+            db.close();
+            return true;
+        } else {
+            Log.d(TAG, "isSongInDB: false");
+            db.close();
+            return false;
+        }
+
+
+
     }
 }
